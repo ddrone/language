@@ -1,0 +1,6 @@
+// Test comment
+-2 * (3 +
+  // And a comment in the middle
+  /* Also, how about one multiline as well.
+     */
+-4)
