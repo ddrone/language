@@ -3,4 +3,8 @@
   // And a comment in the middle
   /* Also, how about one multiline as well.
      */
--4)
+-4);
+val test = 42;
+test = 10;
+test = test + 10;
+debug 2 * (10 + test);

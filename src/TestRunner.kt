@@ -7,10 +7,13 @@ fun main() {
             val source = it.readText()
             val parsed = Parser(source).parse()
             println(parsed)
-            val compiled = Compiler.compile(parsed)
-            val vm = VM(compiled)
-            vm.loop()
-            println(vm.stack)
         }
     }
+}
+
+fun evalExpr(parsed: Expr) {
+    val compiled = Compiler.compile(parsed)
+    val vm = VM(compiled)
+    vm.loop()
+    println(vm.stack)
 }

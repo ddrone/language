@@ -1,4 +1,5 @@
 import java.lang.RuntimeException
+import kotlin.math.exp
 
 enum class TokenType(val string: String? = null, val pattern: Regex? = null) {
     LITERAL(pattern = Regex("-?[0-9]+")),
@@ -16,7 +17,22 @@ enum class TokenType(val string: String? = null, val pattern: Regex? = null) {
     OPEN_PAREN(string = "("),
     CLOSE_PAREN(string = ")"),
     SEMICOLON(string = ";"),
+    EQUALS(string = "="),
+    COMMA(string = ","),
+    KEYWORD,
     EOF;
+}
+
+object Keywords {
+    val valKw = "val"
+    val funKw = "fun"
+    val debugKw = "debug"
+
+    val allKeywords = setOf(
+            valKw,
+            funKw,
+            debugKw
+    )
 }
 
 class Token(
@@ -36,6 +52,10 @@ class Token(
         val result = source.substring(start, end)
         text = result
         return result
+    }
+
+    override fun toString(): String {
+        return "Token(type=$type, text=${getText()})"
     }
 }
 
@@ -86,7 +106,13 @@ class Parser(val source: String) {
                 val match = value.pattern.find(source, currentPos)
                 if (match != null && match.range.first == currentPos) {
                     currentPos = match.range.last + 1
-                    return Token(value, source, match.range.first, match.range.last + 1)
+                    val tokenType =
+                            if (value == TokenType.IDENTIFIER && Keywords.allKeywords.contains(match.value)) {
+                                TokenType.KEYWORD
+                            } else {
+                                value
+                            }
+                    return Token(tokenType, source, match.range.first, match.range.last + 1)
                 }
             }
         }
@@ -200,13 +226,73 @@ class Parser(val source: String) {
                 consume()
                 Literal(freshId(), token.getText().toLong())
             }
+            TokenType.IDENTIFIER -> {
+                consume()
+                Reference(freshId(), token)
+            }
             else -> {
                 throw ParserException(this, "unexpected token ${token.type}")
             }
         }
     }
 
-    fun parse(): Expr {
-        return expression()
+    fun statement(): Stmt {
+        val token = peek()
+        return when (token.type) {
+            TokenType.KEYWORD -> {
+                when (val text = token.getText()) {
+                    Keywords.valKw -> {
+                        consume()
+                        val target = consume(TokenType.IDENTIFIER)
+                        consume(TokenType.EQUALS)
+                        val expr = expression()
+                        consume(TokenType.SEMICOLON)
+                        Assign(freshId(), true, Reference(freshId(), target), expr)
+                    }
+                    Keywords.debugKw -> {
+                        consume()
+                        val expr = expression()
+                        consume(TokenType.SEMICOLON)
+                        Debug(freshId(), expr)
+                    }
+                    else -> {
+                        throw ParserException(this, "unexpected keyword $text")
+                    }
+                }
+            }
+            else -> {
+                val expr = expression()
+                when (val type = peek().type) {
+                    TokenType.EQUALS -> {
+                        consume()
+                        val rhs = expression()
+                        val result = Assign(freshId(), false, expr, rhs)
+                        consume(TokenType.SEMICOLON)
+                        result
+                    }
+                    TokenType.SEMICOLON -> {
+                        consume()
+                        ExprWrap(freshId(), expr)
+                    }
+                    else -> {
+                        throw ParserException(this, "unexpected token $type")
+                    }
+                }
+            }
+        }
+    }
+
+    fun program(): List<Stmt> {
+        val result = mutableListOf<Stmt>()
+
+        while (peek().type != TokenType.EOF) {
+            result.add(statement())
+        }
+
+        return result
+    }
+
+    fun parse(): List<Stmt> {
+        return program()
     }
 }
