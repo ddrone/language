@@ -5,7 +5,7 @@ class ExecutionException(override val message: String): RuntimeException(message
 class VM(val code: List<Inst>) {
     var currentPos: Int = 0
     var stack: Stack<Long> = Stack()
-    var marks: MutableMap<Int, Long> = mutableMapOf()
+    var marks: Stack<MutableMap<Int, Long>> = Stack()
     val localsStart: Int = 0
 
     fun isDone(): Boolean {
@@ -31,7 +31,7 @@ class VM(val code: List<Inst>) {
                 stack.push(curr.op.apply(left, right))
             }
             is MarkNode -> {
-                marks[curr.id] = stack.peek()
+                marks.peek()[curr.id] = stack.peek()
             }
             is LookupLocal -> {
                 stack.push(stack[localsStart + curr.id])
@@ -40,12 +40,11 @@ class VM(val code: List<Inst>) {
                 stack[localsStart + curr.id] = stack.pop()
             }
             StartMarking -> {
-                marks.clear()
+                marks.push(mutableMapOf())
             }
             EndMarking -> {
-                // Pop the result of evaluation.
-                val value = stack.pop()
-                println("$value <= $marks")
+                val value = stack.peek()
+                println("$value <= ${marks.pop()}")
             }
             Pop -> {
                 stack.pop()

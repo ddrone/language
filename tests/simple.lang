@@ -7,4 +7,4 @@
 val test = 42;
 test = 10;
 test = test + 10;
-debug 2 * (10 + test);
+debug 2 * (10 + debug test);

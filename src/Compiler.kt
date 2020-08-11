@@ -28,6 +28,14 @@ class Compiler {
                 }
                 output.add(LookupLocal(id))
             }
+            is Debug -> {
+                output.add(StartMarking)
+                compileExpr(expr.expr, true)
+                output.add(EndMarking)
+            }
+            else -> {
+                throw CompilerException(expr.id, "unknown node type ${expr.javaClass.simpleName}")
+            }
         }
         if (isDebug) {
             output.add(MarkNode(expr.id))
@@ -55,11 +63,6 @@ class Compiler {
                 } else {
                     output.add(StoreLocal(id))
                 }
-            }
-            is Debug -> {
-                output.add(StartMarking)
-                compileExpr(stmt.expr, true)
-                output.add(EndMarking)
             }
             is ExprWrap -> {
                 compileExpr(stmt.expr, false)

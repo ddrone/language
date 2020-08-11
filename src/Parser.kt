@@ -9,6 +9,7 @@ enum class TokenType(val string: String? = null, val pattern: Regex? = null) {
     PLUS(string = "+"),
     MINUS(string = "-"),
     MULT(string = "*"),
+
     // Order of enum values determines the order in which these would be checked.
     // Therefore, if a token is a prefix of another token it should go later.
     // In this case, DIV goes after COMMENT_START.
@@ -59,7 +60,7 @@ class Token(
     }
 }
 
-class ParserException(val parser: Parser, override val message: String): RuntimeException(message) {
+class ParserException(val parser: Parser, override val message: String) : RuntimeException(message) {
     override fun toString(): String {
         return "$message, pos=${parser.currentPos}"
     }
@@ -174,6 +175,20 @@ class Parser(val source: String) {
     }
 
     private fun expression(): Expr {
+        val token = peek()
+        return if (token.type == TokenType.KEYWORD) {
+            if (token.getText() == Keywords.debugKw) {
+                consume()
+                Debug(freshId(), sum())
+            } else {
+                throw ParserException(this, "unexpected keyword ${token.getText()}")
+            }
+        } else {
+            sum()
+        }
+    }
+
+    private fun sum(): Expr {
         var result = summand()
 
         while (true) {
@@ -230,6 +245,9 @@ class Parser(val source: String) {
                 consume()
                 Reference(freshId(), token)
             }
+            TokenType.KEYWORD -> {
+                expression()
+            }
             else -> {
                 throw ParserException(this, "unexpected token ${token.type}")
             }
@@ -238,45 +256,29 @@ class Parser(val source: String) {
 
     fun statement(): Stmt {
         val token = peek()
-        return when (token.type) {
-            TokenType.KEYWORD -> {
-                when (val text = token.getText()) {
-                    Keywords.valKw -> {
-                        consume()
-                        val target = consume(TokenType.IDENTIFIER)
-                        consume(TokenType.EQUALS)
-                        val expr = expression()
-                        consume(TokenType.SEMICOLON)
-                        Assign(freshId(), true, Reference(freshId(), target), expr)
-                    }
-                    Keywords.debugKw -> {
-                        consume()
-                        val expr = expression()
-                        consume(TokenType.SEMICOLON)
-                        Debug(freshId(), expr)
-                    }
-                    else -> {
-                        throw ParserException(this, "unexpected keyword $text")
-                    }
+        return if (token.type == TokenType.KEYWORD && token.getText() == Keywords.valKw) {
+            consume()
+            val target = consume(TokenType.IDENTIFIER)
+            consume(TokenType.EQUALS)
+            val expr = expression()
+            consume(TokenType.SEMICOLON)
+            Assign(freshId(), true, Reference(freshId(), target), expr)
+        } else {
+            val expr = expression()
+            when (val type = peek().type) {
+                TokenType.EQUALS -> {
+                    consume()
+                    val rhs = expression()
+                    val result = Assign(freshId(), false, expr, rhs)
+                    consume(TokenType.SEMICOLON)
+                    result
                 }
-            }
-            else -> {
-                val expr = expression()
-                when (val type = peek().type) {
-                    TokenType.EQUALS -> {
-                        consume()
-                        val rhs = expression()
-                        val result = Assign(freshId(), false, expr, rhs)
-                        consume(TokenType.SEMICOLON)
-                        result
-                    }
-                    TokenType.SEMICOLON -> {
-                        consume()
-                        ExprWrap(freshId(), expr)
-                    }
-                    else -> {
-                        throw ParserException(this, "unexpected token $type")
-                    }
+                TokenType.SEMICOLON -> {
+                    consume()
+                    ExprWrap(freshId(), expr)
+                }
+                else -> {
+                    throw ParserException(this, "unexpected token $type")
                 }
             }
         }
