@@ -1,5 +1,4 @@
 import java.lang.RuntimeException
-import kotlin.math.exp
 
 enum class TokenType(val string: String? = null, val pattern: Regex? = null) {
     LITERAL(pattern = Regex("-?[0-9]+")),
