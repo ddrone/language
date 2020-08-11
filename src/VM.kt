@@ -1,11 +1,12 @@
 import java.lang.RuntimeException
-import java.util.ArrayDeque
 
 class ExecutionException(override val message: String): RuntimeException(message)
 
 class VM(val code: List<Inst>) {
     var currentPos: Int = 0
-    var stack: ArrayDeque<Long> = ArrayDeque()
+    var stack: Stack<Long> = Stack()
+    var marks: MutableMap<Int, Long> = mutableMapOf()
+    val localsStart: Int = 0
 
     fun isDone(): Boolean {
         return currentPos >= code.size
@@ -28,6 +29,29 @@ class VM(val code: List<Inst>) {
                 val right = stack.pop()
                 val left = stack.pop()
                 stack.push(curr.op.apply(left, right))
+            }
+            is MarkNode -> {
+                marks[curr.id] = stack.peek()
+            }
+            is LookupLocal -> {
+                stack.push(stack[localsStart + curr.id])
+            }
+            is StoreLocal -> {
+                stack[localsStart + curr.id] = stack.pop()
+            }
+            StartMarking -> {
+                marks.clear()
+            }
+            EndMarking -> {
+                // Pop the result of evaluation.
+                val value = stack.pop()
+                println("$value <= $marks")
+            }
+            Pop -> {
+                stack.pop()
+            }
+            else -> {
+                throw ExecutionException("unknown instruction $curr")
             }
         }
         currentPos++

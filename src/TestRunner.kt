@@ -7,12 +7,16 @@ fun main() {
             val source = it.readText()
             val parsed = Parser(source).parse()
             println(parsed)
+            eval(parsed)
         }
     }
 }
 
-fun evalExpr(parsed: Expr) {
+fun eval(parsed: List<Stmt>) {
     val compiled = Compiler.compile(parsed)
+
+    compiled.forEach(::println)
+
     val vm = VM(compiled)
     vm.loop()
     println(vm.stack)

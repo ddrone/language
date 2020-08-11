@@ -1,27 +1,77 @@
+import java.lang.RuntimeException
+
+class CompilerException(val nodeId: Int, override val message: String): RuntimeException(message)
+
 class Compiler {
     val output = mutableListOf<Inst>()
+    val locals = Stack<String>()
 
-    private fun compileExpr(expr: Expr) {
+    private fun compileExpr(expr: Expr, isDebug: Boolean) {
         when (expr) {
             is Literal -> {
                 output.add(Push(expr.literal))
             }
             is Unary -> {
-                compileExpr(expr.child)
+                compileExpr(expr.child, isDebug)
                 output.add(ApplyUnary(expr.op))
             }
             is Binary -> {
-                compileExpr(expr.left)
-                compileExpr(expr.right)
+                compileExpr(expr.left, isDebug)
+                compileExpr(expr.right, isDebug)
                 output.add(ApplyBinary(expr.op))
+            }
+            is Reference -> {
+                val name = expr.token.getText()
+                val id = locals.indexOf(name)
+                if (id == -1) {
+                    throw CompilerException(expr.id, "unbound identifier")
+                }
+                output.add(LookupLocal(id))
+            }
+        }
+        if (isDebug) {
+            output.add(MarkNode(expr.id))
+        }
+    }
+
+    private fun compileStmt(stmt: Stmt) {
+        when (stmt) {
+            is Assign -> {
+                if (stmt.target !is Reference) {
+                    throw CompilerException(stmt.id, "only references can be assignment targets, got ${stmt.target.javaClass.simpleName}")
+                }
+
+                val name = stmt.target.token.getText()
+                val id = locals.indexOf(name)
+                if (stmt.isDeclaration && id != -1) {
+                    throw CompilerException(stmt.id, "multiple declaration")
+                } else if (!stmt.isDeclaration && id == -1) {
+                    throw CompilerException(stmt.id, "assignment to undeclared variable")
+                }
+
+                compileExpr(stmt.expr, false)
+                if (stmt.isDeclaration) {
+                    locals.push(name)
+                } else {
+                    output.add(StoreLocal(id))
+                }
+            }
+            is Debug -> {
+                output.add(StartMarking)
+                compileExpr(stmt.expr, true)
+                output.add(EndMarking)
+            }
+            is ExprWrap -> {
+                compileExpr(stmt.expr, false)
+                output.add(Pop)
             }
         }
     }
 
     companion object {
-        fun compile(expr: Expr): List<Inst> {
+        fun compile(program: List<Stmt>): List<Inst> {
             val compiler = Compiler()
-            compiler.compileExpr(expr)
+            program.forEach(compiler::compileStmt)
             return compiler.output
         }
     }
