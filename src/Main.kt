@@ -1,3 +1,4 @@
 fun main() {
     parse()
+    compile()
 }
