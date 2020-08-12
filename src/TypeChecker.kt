@@ -96,7 +96,7 @@ class TypeChecker {
                 }
             }
             is Return -> {
-                TODO("implement me")
+                expectType(returnType, stmt.expr, "wrong type of return statement")
             }
         }
     }
