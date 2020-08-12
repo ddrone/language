@@ -40,7 +40,7 @@ class Compiler {
     }
 
     private fun compileStmt(stmt: Stmt) {
-        return when (stmt) {
+        @Suppress("UNUSED_VARIABLE") val unused: Any = when (stmt) {
             is Assign -> {
                 if (stmt.target !is Reference) {
                     throw CompilerException(stmt.id, "only references can be assignment targets, got ${stmt.target.javaClass.simpleName}")
@@ -60,12 +60,10 @@ class Compiler {
                 } else {
                     output.add(StoreLocal(id))
                 }
-                Unit
             }
             is ExprWrap -> {
                 compileExpr(stmt.expr, false)
                 output.add(Pop)
-                Unit
             }
         }
     }

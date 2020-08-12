@@ -17,7 +17,7 @@ class VM(val code: List<Inst>) {
             throw ExecutionException("trying to execute step after machine is done")
         }
 
-        when (val curr = code[currentPos]) {
+        @Suppress("UNUSED_VARIABLE") val unused: Any = when (val curr = code[currentPos]) {
             is Push -> {
                 stack.push(curr.literal)
             }
@@ -48,9 +48,6 @@ class VM(val code: List<Inst>) {
             }
             Pop -> {
                 stack.pop()
-            }
-            else -> {
-                throw ExecutionException("unknown instruction $curr")
             }
         }
         currentPos++
