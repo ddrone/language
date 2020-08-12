@@ -7,7 +7,7 @@ class Compiler {
     val locals = Stack<String>()
 
     private fun compileExpr(expr: Expr, isDebug: Boolean) {
-        when (expr) {
+        @Suppress("UNUSED_VARIABLE") val unused = when (expr) {
             is Literal -> {
                 output.add(Push(expr.literal))
             }
@@ -33,9 +33,6 @@ class Compiler {
                 compileExpr(expr.expr, true)
                 output.add(EndMarking)
             }
-            else -> {
-                throw CompilerException(expr.id, "unknown node type ${expr.javaClass.simpleName}")
-            }
         }
         if (isDebug) {
             output.add(MarkNode(expr.id))
@@ -43,7 +40,7 @@ class Compiler {
     }
 
     private fun compileStmt(stmt: Stmt) {
-        when (stmt) {
+        return when (stmt) {
             is Assign -> {
                 if (stmt.target !is Reference) {
                     throw CompilerException(stmt.id, "only references can be assignment targets, got ${stmt.target.javaClass.simpleName}")
@@ -63,10 +60,12 @@ class Compiler {
                 } else {
                     output.add(StoreLocal(id))
                 }
+                Unit
             }
             is ExprWrap -> {
                 compileExpr(stmt.expr, false)
                 output.add(Pop)
+                Unit
             }
         }
     }
