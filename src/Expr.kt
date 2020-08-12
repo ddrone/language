@@ -1,3 +1,5 @@
+import java.lang.RuntimeException
+
 sealed class Expr {
     abstract val id: Int
 }
@@ -18,15 +20,44 @@ enum class UnaryOp(val string: String) {
 }
 
 enum class BinaryOp(val string: String, val priority: Int) {
-    PLUS("+", 1),
-    MINUS("-", 1),
-    MULT("*", 2);
+    OR("||", 5),
+    AND("&&", 4),
+    EQ("==", 3),
+    PLUS("+", 2),
+    MINUS("-", 2),
+    MULT("*", 1);
 
     fun apply(left: Long, right: Long): Long {
         return when (this) {
             PLUS -> left + right
             MINUS -> left - right
             MULT -> left * right
+            EQ -> (left == right).asLong()
+            else -> {
+                throw RuntimeException("do not know how to apply $this")
+            }
         }
+    }
+}
+
+fun Long.asBoolean(): Boolean {
+    return when {
+        this == 0L -> {
+            false
+        }
+        this == 1L -> {
+            true
+        }
+        else -> {
+            throw RuntimeException("can't convert $this to boolean")
+        }
+    }
+}
+
+fun Boolean.asLong(): Long {
+    return if (this) {
+        1L
+    } else {
+        0L
     }
 }

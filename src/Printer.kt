@@ -23,11 +23,11 @@ class Printer {
                 }
             }
             is Binary -> {
-                bracket(expr.left is Debug || expr.left is Binary && expr.left.op.priority < expr.op.priority) {
+                bracket(expr.left is Debug || expr.left is Binary && expr.left.op.priority > expr.op.priority) {
                     print(expr.left)
                 }
                 builder.append(" ${expr.op.string} ")
-                bracket(expr.right is Binary && expr.right.op.priority <= expr.op.priority) {
+                bracket(expr.right is Binary && expr.right.op.priority >= expr.op.priority) {
                     print(expr.right)
                 }
             }

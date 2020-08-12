@@ -14,9 +14,12 @@ enum class TokenType(val string: String? = null, val pattern: Regex? = null) {
     // In this case, DIV goes after COMMENT_START.
     DIV(string = "/"),
     MOD(string = "%"),
+    AND(string = "&&"),
+    OR(string = "||"),
     OPEN_PAREN(string = "("),
     CLOSE_PAREN(string = ")"),
     SEMICOLON(string = ";"),
+    EQUALS_EQUALS(string = "=="),
     EQUALS(string = "="),
     COMMA(string = ","),
     KEYWORD,
@@ -178,49 +181,49 @@ class Parser(val source: String) {
         return if (token.type == TokenType.KEYWORD) {
             if (token.getText() == Keywords.debugKw) {
                 consume()
-                Debug(freshId(), sum())
+                Debug(freshId(), disjunction())
             } else {
                 throw ParserException(this, "unexpected keyword ${token.getText()}")
             }
         } else {
-            sum()
+            disjunction()
         }
+    }
+
+    private fun leftFold(tokens: Map<TokenType, BinaryOp>, callback: () -> Expr): Expr {
+        var result = callback()
+
+        while (true) {
+            when (val op = tokens[peek().type]) {
+                null -> {
+                    return result
+                }
+                else -> {
+                    consume()
+                    result = Binary(freshId(), result, op, callback())
+                }
+            }
+        }
+    }
+
+    private fun disjunction(): Expr {
+        return leftFold(mapOf(TokenType.OR to BinaryOp.OR), ::conjunction)
+    }
+
+    private fun conjunction(): Expr {
+        return leftFold(mapOf(TokenType.AND to BinaryOp.AND), ::equality)
+    }
+
+    private fun equality(): Expr {
+        return leftFold(mapOf(TokenType.EQUALS_EQUALS to BinaryOp.EQ), ::sum)
     }
 
     private fun sum(): Expr {
-        var result = summand()
-
-        while (true) {
-            when (peek().type) {
-                TokenType.PLUS -> {
-                    consume()
-                    result = Binary(freshId(), result, BinaryOp.PLUS, summand())
-                }
-                TokenType.MINUS -> {
-                    consume()
-                    result = Binary(freshId(), result, BinaryOp.MINUS, summand())
-                }
-                else -> {
-                    return result
-                }
-            }
-        }
+        return leftFold(mapOf(TokenType.PLUS to BinaryOp.PLUS, TokenType.MINUS to BinaryOp.MINUS), ::summand)
     }
 
     private fun summand(): Expr {
-        var result = factor()
-
-        while (true) {
-            when (peek().type) {
-                TokenType.MULT -> {
-                    consume()
-                    result = Binary(freshId(), result, BinaryOp.MULT, factor())
-                }
-                else -> {
-                    return result
-                }
-            }
-        }
+        return leftFold(mapOf(TokenType.MULT to BinaryOp.MULT), ::factor)
     }
 
     private fun factor(): Expr {

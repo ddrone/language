@@ -6,7 +6,6 @@ fun main() {
             println(it)
             val source = it.readText()
             val parsed = Parser(source).parse()
-            println(parsed)
             eval(parsed)
         }
     }
@@ -14,8 +13,6 @@ fun main() {
 
 fun eval(parsed: List<Stmt>) {
     val compiled = Compiler.compile(parsed)
-
-    compiled.forEach(::println)
     val debugger = Debugger(parsed)
 
     val vm = VM(compiled, debugger)
