@@ -90,6 +90,9 @@ class TypeChecker {
                 stmt.consequent.forEach(::typecheckStmt)
                 stmt.alternative.forEach(::typecheckStmt)
             }
+            is Return -> {
+                TODO("implement me")
+            }
         }
     }
 

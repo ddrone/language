@@ -8,3 +8,4 @@ val test = 42;
 test = 10;
 test = test + 10;
 debug 2 * (10 + debug test);
+return 2;

@@ -102,6 +102,9 @@ class Compiler() {
                 }
                 output.add(Fork(consequent, alternative))
             }
+            is Return -> {
+                TODO("implement me")
+            }
         }
     }
 

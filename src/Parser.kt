@@ -34,13 +34,15 @@ object Keywords {
     val debugKw = "debug"
     val ifKw = "if"
     val elseKw = "else"
+    val returnKw = "return"
 
     val allKeywords = setOf(
             valKw,
             funKw,
             debugKw,
             ifKw,
-            elseKw
+            elseKw,
+            returnKw
     )
 }
 
@@ -272,24 +274,27 @@ class Parser(val source: String) {
         }
     }
 
-    fun statement(): Stmt {
+    fun isKeyword(keyword: String): Boolean {
         val token = peek()
-        return if (token.type == TokenType.KEYWORD && token.getText() == Keywords.valKw) {
+        return token.type == TokenType.KEYWORD && token.getText() == keyword
+    }
+
+    fun statement(): Stmt {
+        return if (isKeyword(Keywords.valKw)) {
             consume()
             val target = consume(TokenType.IDENTIFIER)
             consume(TokenType.EQUALS)
             val expr = expression()
             consume(TokenType.SEMICOLON)
             Assign(freshId(), true, Reference(freshId(), target), expr)
-        } else if (token.type == TokenType.KEYWORD && token.getText() == Keywords.ifKw) {
+        } else if (isKeyword(Keywords.ifKw)) {
             consume()
             consume(TokenType.OPEN_PAREN)
             val condition = expression()
             consume(TokenType.CLOSE_PAREN)
             val consequent = block()
 
-            val nextToken = peek()
-            val alternative: List<Stmt> = if (nextToken.type == TokenType.KEYWORD && nextToken.getText() == Keywords.elseKw) {
+            val alternative: List<Stmt> = if (isKeyword(Keywords.elseKw)) {
                 consume()
                 block()
             } else {
@@ -297,6 +302,11 @@ class Parser(val source: String) {
             }
 
             If(freshId(), condition, consequent, alternative)
+        } else if (isKeyword(Keywords.returnKw)) {
+            consume()
+            val expr = expression()
+            consume(TokenType.SEMICOLON)
+            Return(freshId(), expr)
         } else {
             val expr = expression()
             when (val type = peek().type) {

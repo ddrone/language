@@ -19,6 +19,9 @@ class Debugger(program: List<Stmt>, val types: Map<Int, Type>) {
                 stmt.consequent.forEach(::addStmt)
                 stmt.alternative.forEach(::addStmt)
             }
+            is Return -> {
+                addExpr(stmt.expr)
+            }
         }
     }
 
