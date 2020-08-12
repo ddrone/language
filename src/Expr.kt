@@ -7,8 +7,8 @@ data class Binary(override val id: Int, val left: Expr, val op: BinaryOp, val ri
 data class Reference(override val id: Int, val token: Token): Expr()
 data class Debug(override val id: Int, val expr: Expr): Expr()
 
-enum class UnaryOp {
-    NEGATE;
+enum class UnaryOp(val string: String) {
+    NEGATE("-");
 
     fun apply(input: Long): Long {
         return when (this) {
@@ -17,10 +17,10 @@ enum class UnaryOp {
     }
 }
 
-enum class BinaryOp {
-    PLUS,
-    MINUS,
-    MULT;
+enum class BinaryOp(val string: String, val priority: Int) {
+    PLUS("+", 1),
+    MINUS("-", 1),
+    MULT("*", 2);
 
     fun apply(left: Long, right: Long): Long {
         return when (this) {
