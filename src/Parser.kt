@@ -21,6 +21,7 @@ enum class TokenType(val string: String? = null, val pattern: Regex? = null) {
     OPEN_BRACE(string = "{"),
     CLOSE_BRACE(string = "}"),
     SEMICOLON(string = ";"),
+    COLON(string = ":"),
     EQUALS_EQUALS(string = "=="),
     EQUALS(string = "="),
     COMMA(string = ","),
@@ -43,6 +44,16 @@ object Keywords {
             ifKw,
             elseKw,
             returnKw
+    )
+}
+
+object BuiltinTypes {
+    val boolType = "bool"
+    val intType = "int"
+
+    val allTypes: Map<String, Type> = mapOf(
+            boolType to BoolType,
+            intType to IntType
     )
 }
 
@@ -349,7 +360,50 @@ class Parser(val source: String) {
         return result
     }
 
-    fun parse(): List<Stmt> {
-        return statements()
+    fun type(): Type {
+        val name = consume(TokenType.IDENTIFIER)
+        return BuiltinTypes.allTypes[name.getText()]
+                ?: throw ParserException(this, "unknown type ${name.getText()}")
+    }
+
+    fun argument(): Argument {
+        val name = consume(TokenType.IDENTIFIER)
+        consume(TokenType.COLON)
+        val argType = type()
+        return Argument(freshId(), name, argType)
+    }
+
+    fun function(): Function {
+        consumeKeyword(Keywords.funKw)
+        val name = consume(TokenType.IDENTIFIER)
+        consume(TokenType.OPEN_PAREN)
+
+        val args = mutableListOf<Argument>()
+        while (peek().type != TokenType.CLOSE_PAREN) {
+            args.add(argument())
+
+            if (peek().type == TokenType.COMMA) {
+                // Trailing comma after last argument is explicitly allowed
+                consume()
+            } else if (peek().type != TokenType.CLOSE_PAREN) {
+                throw ParserException(this, "expected comma or closing bracket after function parameter")
+            }
+        }
+
+        consume(TokenType.CLOSE_PAREN)
+        consume(TokenType.COLON)
+        val returnType = type()
+        val body = block()
+
+        return Function(freshId(), name, args, returnType, body)
+    }
+
+    fun parse(): List<Function> {
+        val result = mutableListOf<Function>()
+        while (peek().type != TokenType.EOF) {
+            result.add(function())
+        }
+
+        return result
     }
 }

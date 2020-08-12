@@ -5,6 +5,7 @@ class TypingFailure(val nodeId: Int, override val message: String): RuntimeExcep
 class TypeChecker {
     val typeById = mutableMapOf<Int, Type>()
     val localTypes = mutableMapOf<String, Type>()
+    val functionByName = mutableMapOf<String, Function>()
 
     fun Expr.type(): Type {
         return typeById[this.id] ?: throw RuntimeException("trying to access uncomputed type of $this")
@@ -61,7 +62,7 @@ class TypeChecker {
         return result
     }
 
-    fun typecheckStmt(stmt: Stmt) {
+    fun typecheckStmt(stmt: Stmt, returnType: Type) {
         @Suppress("UNUSED_VARIABLE") val unused: Any = when (stmt) {
             is Assign -> {
                 if (stmt.target !is Reference) {
@@ -87,8 +88,12 @@ class TypeChecker {
             is ExprWrap -> inferType(stmt.expr)
             is If -> {
                 expectType(BoolType, stmt.condition, "condition should be boolean")
-                stmt.consequent.forEach(::typecheckStmt)
-                stmt.alternative.forEach(::typecheckStmt)
+                stmt.consequent.forEach {
+                    typecheckStmt(it, returnType)
+                }
+                stmt.alternative.forEach {
+                    typecheckStmt(it, returnType)
+                }
             }
             is Return -> {
                 TODO("implement me")
@@ -96,7 +101,22 @@ class TypeChecker {
         }
     }
 
-    fun typecheckProgram(code: List<Stmt>) {
-        code.forEach(::typecheckStmt)
+    fun typecheckFunction(function: Function) {
+        localTypes.clear()
+        for (arg in function.args) {
+            localTypes[arg.name.getText()] = arg.type
+        }
+
+        function.body.forEach {
+            typecheckStmt(it, function.returnType)
+        }
+    }
+
+    fun typecheckProgram(functions: List<Function>) {
+        functions.forEach {
+            functionByName[it.name.getText()] = it
+        }
+
+        functions.forEach(::typecheckFunction)
     }
 }

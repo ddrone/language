@@ -1,0 +1,4 @@
+fun main(): int {
+    debug 10 + 2 * 2;
+    return 0;
+}

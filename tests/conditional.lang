@@ -1,5 +1,0 @@
-if (1 + 1 == 2) {
-  debug 42;
-} else {
-  debug 37;
-}
