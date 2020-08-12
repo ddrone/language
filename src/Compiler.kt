@@ -92,6 +92,16 @@ class Compiler() {
                 compileExpr(stmt.expr, false)
                 output.add(Pop)
             }
+            is If -> {
+                compileExpr(stmt.condition, false)
+                val consequent = replacingOutput {
+                    stmt.consequent.forEach(::compileStmt)
+                }
+                val alternative = replacingOutput {
+                    stmt.alternative.forEach(::compileStmt)
+                }
+                output.add(Fork(consequent, alternative))
+            }
         }
     }
 

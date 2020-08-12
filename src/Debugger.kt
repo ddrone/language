@@ -14,6 +14,11 @@ class Debugger(program: List<Stmt>, val types: Map<Int, Type>) {
             is ExprWrap -> {
                 addExpr(stmt.expr)
             }
+            is If -> {
+                addExpr(stmt.condition)
+                stmt.consequent.forEach(::addStmt)
+                stmt.alternative.forEach(::addStmt)
+            }
         }
     }
 

@@ -85,6 +85,11 @@ class TypeChecker {
                 }
             }
             is ExprWrap -> inferType(stmt.expr)
+            is If -> {
+                expectType(BoolType, stmt.condition, "condition should be boolean")
+                stmt.consequent.forEach(::typecheckStmt)
+                stmt.alternative.forEach(::typecheckStmt)
+            }
         }
     }
 

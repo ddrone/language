@@ -97,6 +97,14 @@ class VM(code: List<Inst>, val debugger: Debugger) {
                     Unit
                 }
             }
+            is Fork -> {
+                val condition = stack.pop().asBoolean()
+                if (condition) {
+                    codeStack.push(CodeFrame(curr.consequent, currentFrame.localsStart, 0))
+                } else {
+                    codeStack.push(CodeFrame(curr.alternative, currentFrame.localsStart, 0))
+                }
+            }
         }
         currentFrame.advance()
     }

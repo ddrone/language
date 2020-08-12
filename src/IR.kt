@@ -7,6 +7,7 @@ data class LookupLocal(val id: Int): Inst()
 data class StoreLocal(val id: Int): Inst()
 data class Or(val rhs: List<Inst>): Inst()
 data class And(val rhs: List<Inst>): Inst()
+data class Fork(val consequent: List<Inst>, val alternative: List<Inst>): Inst()
 object StartMarking: Inst() {
     override fun toString(): String {
         return StartMarking.javaClass.simpleName

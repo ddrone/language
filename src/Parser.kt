@@ -18,6 +18,8 @@ enum class TokenType(val string: String? = null, val pattern: Regex? = null) {
     OR(string = "||"),
     OPEN_PAREN(string = "("),
     CLOSE_PAREN(string = ")"),
+    OPEN_BRACE(string = "{"),
+    CLOSE_BRACE(string = "}"),
     SEMICOLON(string = ";"),
     EQUALS_EQUALS(string = "=="),
     EQUALS(string = "="),
@@ -30,11 +32,15 @@ object Keywords {
     val valKw = "val"
     val funKw = "fun"
     val debugKw = "debug"
+    val ifKw = "if"
+    val elseKw = "else"
 
     val allKeywords = setOf(
             valKw,
             funKw,
-            debugKw
+            debugKw,
+            ifKw,
+            elseKw
     )
 }
 
@@ -176,6 +182,16 @@ class Parser(val source: String) {
         return result
     }
 
+    private fun consumeKeyword(keyword: String): Token {
+        val token = consume(TokenType.KEYWORD)
+        val text = token.getText()
+        if (text != keyword) {
+            throw ParserException(this, "expected $keyword, got $text")
+        }
+
+        return token
+    }
+
     private fun expression(): Expr {
         val token = peek()
         return if (token.type == TokenType.KEYWORD) {
@@ -265,6 +281,22 @@ class Parser(val source: String) {
             val expr = expression()
             consume(TokenType.SEMICOLON)
             Assign(freshId(), true, Reference(freshId(), target), expr)
+        } else if (token.type == TokenType.KEYWORD && token.getText() == Keywords.ifKw) {
+            consume()
+            consume(TokenType.OPEN_PAREN)
+            val condition = expression()
+            consume(TokenType.CLOSE_PAREN)
+            val consequent = block()
+
+            val nextToken = peek()
+            val alternative: List<Stmt> = if (nextToken.type == TokenType.KEYWORD && nextToken.getText() == Keywords.elseKw) {
+                consume()
+                block()
+            } else {
+                listOf()
+            }
+
+            If(freshId(), condition, consequent, alternative)
         } else {
             val expr = expression()
             when (val type = peek().type) {
@@ -286,10 +318,21 @@ class Parser(val source: String) {
         }
     }
 
-    fun program(): List<Stmt> {
+    fun block(): List<Stmt> {
+        consume(TokenType.OPEN_BRACE)
+        val result = statements()
+        consume(TokenType.CLOSE_BRACE)
+        return result
+    }
+
+    fun statements(): List<Stmt> {
         val result = mutableListOf<Stmt>()
 
-        while (peek().type != TokenType.EOF) {
+        while (true) {
+            val type = peek().type
+            if (type == TokenType.EOF || type == TokenType.CLOSE_BRACE) {
+                break
+            }
             result.add(statement())
         }
 
@@ -297,6 +340,6 @@ class Parser(val source: String) {
     }
 
     fun parse(): List<Stmt> {
-        return program()
+        return statements()
     }
 }
