@@ -3,11 +3,20 @@ import java.lang.RuntimeException
 class CompilerException(val nodeId: Int, override val message: String): RuntimeException(message)
 
 class Compiler {
-    val output = mutableListOf<Inst>()
+    var output = mutableListOf<Inst>()
     val locals = Stack<String>()
 
+    private fun replacingOutput(callback: () -> Unit): List<Inst> {
+        val saved = output
+        val result = mutableListOf<Inst>()
+        output = result
+        callback()
+        output = saved
+        return result
+    }
+
     private fun compileExpr(expr: Expr, isDebug: Boolean) {
-        @Suppress("UNUSED_VARIABLE") val unused = when (expr) {
+        @Suppress("UNUSED_VARIABLE") val unused: Any = when (expr) {
             is Literal -> {
                 output.add(Push(expr.literal))
             }
@@ -16,9 +25,27 @@ class Compiler {
                 output.add(ApplyUnary(expr.op))
             }
             is Binary -> {
-                compileExpr(expr.left, isDebug)
-                compileExpr(expr.right, isDebug)
-                output.add(ApplyBinary(expr.op))
+                if (expr.op == BinaryOp.OR || expr.op == BinaryOp.AND) {
+                    compileExpr(expr.left, isDebug)
+                    val rhs = replacingOutput {
+                        compileExpr(expr.right, isDebug)
+                    }
+                    when (expr.op) {
+                        BinaryOp.OR -> {
+                            output.add(Or(rhs))
+                        }
+                        BinaryOp.AND -> {
+                            output.add(And(rhs))
+                        }
+                        else -> {
+                            throw RuntimeException("unexpected operator ${expr.op}")
+                        }
+                    }
+                } else {
+                    compileExpr(expr.left, isDebug)
+                    compileExpr(expr.right, isDebug)
+                    output.add(ApplyBinary(expr.op))
+                }
             }
             is Reference -> {
                 val name = expr.token.getText()

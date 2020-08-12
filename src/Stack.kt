@@ -33,4 +33,8 @@ class Stack<E> {
     override fun toString(): String {
         return elements.toString()
     }
+
+    fun isEmpty(): Boolean {
+        return elements.isEmpty()
+    }
 }

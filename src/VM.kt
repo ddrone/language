@@ -2,14 +2,32 @@ import java.lang.RuntimeException
 
 class ExecutionException(override val message: String): RuntimeException(message)
 
-class VM(val code: List<Inst>, val debugger: Debugger) {
-    var currentPos: Int = 0
+class CodeFrame(val code: List<Inst>, val localsStart: Int, private var currentPos: Int) {
+    fun isDone(): Boolean {
+        return currentPos >= code.size
+    }
+
+    fun current(): Inst {
+        return code[currentPos]
+    }
+
+    fun advance() {
+        currentPos++
+    }
+}
+
+class VM(code: List<Inst>, val debugger: Debugger) {
+    var codeStack: Stack<CodeFrame> = Stack()
     var stack: Stack<Long> = Stack()
     var marksStack: Stack<MutableMap<Int, Long>> = Stack()
     val localsStart: Int = 0
 
+    init {
+        codeStack.push(CodeFrame(code, 0, 0))
+    }
+
     fun isDone(): Boolean {
-        return currentPos >= code.size
+        return codeStack.isEmpty()
     }
 
     fun step() {
@@ -17,7 +35,13 @@ class VM(val code: List<Inst>, val debugger: Debugger) {
             throw ExecutionException("trying to execute step after machine is done")
         }
 
-        @Suppress("UNUSED_VARIABLE") val unused: Any = when (val curr = code[currentPos]) {
+        val currentFrame = codeStack.peek()
+        if (currentFrame.isDone()) {
+            codeStack.pop()
+            return
+        }
+
+        @Suppress("UNUSED_VARIABLE") val unused: Any = when (val curr = currentFrame.current()) {
             is Push -> {
                 stack.push(curr.literal)
             }
@@ -55,8 +79,26 @@ class VM(val code: List<Inst>, val debugger: Debugger) {
             Pop -> {
                 stack.pop()
             }
+            is Or -> {
+                if (!stack.peek().asBoolean()) {
+                    stack.pop()
+                    codeStack.push(CodeFrame(curr.rhs, currentFrame.localsStart, 0))
+                } else {
+                    @Suppress("RedundantUnitExpression")
+                    Unit
+                }
+            }
+            is And -> {
+                if (stack.peek().asBoolean()) {
+                    stack.pop()
+                    codeStack.push(CodeFrame(curr.rhs, currentFrame.localsStart, 0))
+                } else {
+                    @Suppress("RedundantUnitExrpession")
+                    Unit
+                }
+            }
         }
-        currentPos++
+        currentFrame.advance()
     }
 
     fun loop() {
