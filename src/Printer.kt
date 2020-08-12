@@ -38,6 +38,19 @@ class Printer {
                 builder.append("debug ")
                 print(expr.child)
             }
+            is Call -> {
+                builder.append(expr.funName.getText())
+                builder.append("(")
+                var first = true
+                for (arg in expr.args) {
+                    if (!first) {
+                        builder.append(", ")
+                    }
+                    first = false
+                    print(arg)
+                }
+                builder.append(")")
+            }
         }
     }
 

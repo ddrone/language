@@ -274,7 +274,22 @@ class Parser(val source: String) {
             }
             TokenType.IDENTIFIER -> {
                 consume()
-                Reference(freshId(), token)
+                if (peek().type == TokenType.OPEN_PAREN) {
+                    consume()
+                    val args = mutableListOf<Expr>()
+                    while (peek().type != TokenType.CLOSE_PAREN) {
+                        args.add(expression())
+                        if (peek().type == TokenType.COMMA) {
+                            consume()
+                        } else if (peek().type != TokenType.CLOSE_PAREN) {
+                            throw ParserException(this, "expected comma or closing parenthesis when parsing function call")
+                        }
+                    }
+                    consume(TokenType.CLOSE_PAREN)
+                    Call(freshId(), token, args)
+                } else {
+                    Reference(freshId(), token)
+                }
             }
             TokenType.KEYWORD -> {
                 expression()

@@ -44,6 +44,9 @@ class Debugger(program: List<Function>, val types: Map<Int, Type>) {
             is Debug -> {
                 addExpr(expr.child)
             }
+            is Call -> {
+                expr.args.forEach(::addExpr)
+            }
         }
     }
 

@@ -36,3 +36,4 @@ expression, like `debug foo * bar + baz`.
 * If-statements
 * Arithmetic and boolean expressions
 * Local variables
+* Recursive functions

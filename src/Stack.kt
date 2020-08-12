@@ -71,4 +71,8 @@ class Stack<E> {
     fun clear() {
         downsize(0)
     }
+
+    fun size(): Int {
+        return size
+    }
 }

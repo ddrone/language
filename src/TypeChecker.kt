@@ -56,6 +56,19 @@ class TypeChecker {
             is Debug -> {
                 inferType(expr.child)
             }
+            is Call -> {
+                val funName = expr.funName.getText()
+                val function = functionByName[funName] ?: throw TypingFailure(expr.id, "unknown function $funName")
+
+                if (function.args.size != expr.args.size) {
+                    throw TypingFailure(expr.id, "$funName: expected ${function.args.size} arguments, got ${expr.args.size}")
+                }
+
+                for (i in function.args.indices) {
+                    expectType(function.args[i].type, expr.args[i], "$funName: wrong type of argument ${i + 1}")
+                }
+                function.returnType
+            }
         }
 
         typeById[expr.id] = result

@@ -24,3 +24,4 @@ object ReturnOp: Inst() {
         return ReturnOp.javaClass.simpleName
     }
 }
+data class CallOp(val funName: String, val argsCount: Int): Inst()

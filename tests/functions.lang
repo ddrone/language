@@ -1,4 +1,10 @@
+fun fib(x: int): int {
+    if (x == 0 || x == 1) {
+        return x;
+    }
+    return fib(x - 1) + fib(x - 2);
+}
+
 fun main(): int {
-    debug 10 + 2 * 2;
-    return 0;
+    return fib(10);
 }

@@ -1,4 +1,5 @@
 import java.lang.RuntimeException
+import kotlin.jvm.internal.FunctionReference
 
 class ExecutionException(override val message: String): RuntimeException(message)
 
@@ -125,6 +126,11 @@ class VM(code: List<Inst>, val functions: Map<String, List<Inst>>, val debugger:
                 stack.downsize(currentFunction.localsStart)
                 stack.push(value)
                 functionsStack.pop()
+            }
+            is CallOp -> {
+                val localsStart = stack.size() - curr.argsCount
+                val code = functions[curr.funName] ?: throw RuntimeException("unknown function ${curr.funName}")
+                functionsStack.push(FunctionFrame(code, localsStart))
             }
         }
         currentFrame.advance()

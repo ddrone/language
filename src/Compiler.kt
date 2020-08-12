@@ -60,6 +60,12 @@ class Compiler() {
                 compileExpr(expr.child, true)
                 output.add(EndMarking(expr.id))
             }
+            is Call -> {
+                expr.args.forEach {
+                    compileExpr(it, isDebug)
+                }
+                output.add(CallOp(expr.funName.getText(), expr.args.size))
+            }
         }
         if (isDebug) {
             output.add(MarkNode(expr.id))
