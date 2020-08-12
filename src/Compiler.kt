@@ -103,16 +103,31 @@ class Compiler() {
                 output.add(Fork(consequent, alternative))
             }
             is Return -> {
-                TODO("implement me")
+                compileExpr(stmt.expr, false)
+                output.add(ReturnOp)
             }
         }
     }
 
+    private fun compileFunction(function: Function): List<Inst> {
+        return replacingOutput {
+            locals.clear()
+            for (arg in function.args) {
+                locals.push(arg.name.getText())
+            }
+
+            function.body.forEach(::compileStmt)
+        }
+    }
+
     companion object {
-        fun compile(program: List<Stmt>): List<Inst> {
+        fun compile(program: List<Function>): Map<String, List<Inst>> {
+            val result = mutableMapOf<String, List<Inst>>()
             val compiler = Compiler()
-            program.forEach(compiler::compileStmt)
-            return compiler.output
+            for (function in program) {
+                result[function.name.getText()] = compiler.compileFunction(function)
+            }
+            return result
         }
     }
 }

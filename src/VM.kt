@@ -2,7 +2,27 @@ import java.lang.RuntimeException
 
 class ExecutionException(override val message: String): RuntimeException(message)
 
-class CodeFrame(val code: List<Inst>, val localsStart: Int, private var currentPos: Int) {
+class FunctionFrame(code: List<Inst>, val localsStart: Int) {
+    val codeStack: Stack<CodeFrame> = Stack()
+
+    init {
+        codeStack.push(CodeFrame(code, 0))
+    }
+
+    fun current(): CodeFrame {
+        while (codeStack.peek().isDone()) {
+            codeStack.pop()
+        }
+
+        return codeStack.peek()
+    }
+
+    fun push(code: List<Inst>) {
+        codeStack.push(CodeFrame(code, 0))
+    }
+}
+
+class CodeFrame(val code: List<Inst>, private var currentPos: Int) {
     fun isDone(): Boolean {
         return currentPos >= code.size
     }
@@ -16,18 +36,17 @@ class CodeFrame(val code: List<Inst>, val localsStart: Int, private var currentP
     }
 }
 
-class VM(code: List<Inst>, val debugger: Debugger) {
-    var codeStack: Stack<CodeFrame> = Stack()
+class VM(code: List<Inst>, val functions: Map<String, List<Inst>>, val debugger: Debugger) {
+    var functionsStack: Stack<FunctionFrame> = Stack()
     var stack: Stack<Long> = Stack()
     var marksStack: Stack<MutableMap<Int, Long>> = Stack()
-    val localsStart: Int = 0
 
     init {
-        codeStack.push(CodeFrame(code, 0, 0))
+        functionsStack.push(FunctionFrame(code, 0))
     }
 
     fun isDone(): Boolean {
-        return codeStack.isEmpty()
+        return functionsStack.isEmpty()
     }
 
     fun step() {
@@ -35,12 +54,8 @@ class VM(code: List<Inst>, val debugger: Debugger) {
             throw ExecutionException("trying to execute step after machine is done")
         }
 
-        val currentFrame = codeStack.peek()
-        if (currentFrame.isDone()) {
-            codeStack.pop()
-            return
-        }
-
+        val currentFunction = functionsStack.peek()
+        val currentFrame = currentFunction.current()
         @Suppress("UNUSED_VARIABLE") val unused: Any = when (val curr = currentFrame.current()) {
             is Push -> {
                 stack.push(curr.literal)
@@ -58,10 +73,10 @@ class VM(code: List<Inst>, val debugger: Debugger) {
                 marksStack.peek()[curr.id] = stack.peek()
             }
             is LookupLocal -> {
-                stack.push(stack[localsStart + curr.id])
+                stack.push(stack[currentFunction.localsStart + curr.id])
             }
             is StoreLocal -> {
-                stack[localsStart + curr.id] = stack.pop()
+                stack[currentFunction.localsStart + curr.id] = stack.pop()
             }
             StartMarking -> {
                 marksStack.push(linkedMapOf())
@@ -82,7 +97,7 @@ class VM(code: List<Inst>, val debugger: Debugger) {
             is Or -> {
                 if (!stack.peek().asBoolean()) {
                     stack.pop()
-                    codeStack.push(CodeFrame(curr.rhs, currentFrame.localsStart, 0))
+                    currentFunction.push(curr.rhs)
                 } else {
                     @Suppress("RedundantUnitExpression")
                     Unit
@@ -91,19 +106,25 @@ class VM(code: List<Inst>, val debugger: Debugger) {
             is And -> {
                 if (stack.peek().asBoolean()) {
                     stack.pop()
-                    codeStack.push(CodeFrame(curr.rhs, currentFrame.localsStart, 0))
+                    currentFunction.push(curr.rhs)
                 } else {
-                    @Suppress("RedundantUnitExrpession")
+                    @Suppress("RedundantUnitExpression")
                     Unit
                 }
             }
             is Fork -> {
                 val condition = stack.pop().asBoolean()
                 if (condition) {
-                    codeStack.push(CodeFrame(curr.consequent, currentFrame.localsStart, 0))
+                    currentFunction.push(curr.consequent)
                 } else {
-                    codeStack.push(CodeFrame(curr.alternative, currentFrame.localsStart, 0))
+                    currentFunction.push(curr.alternative)
                 }
+            }
+            ReturnOp -> {
+                val value = stack.pop()
+                stack.downsize(currentFunction.localsStart)
+                stack.push(value)
+                functionsStack.pop()
             }
         }
         currentFrame.advance()

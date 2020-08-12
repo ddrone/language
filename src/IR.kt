@@ -19,3 +19,8 @@ object Pop: Inst() {
         return Pop.javaClass.simpleName
     }
 }
+object ReturnOp: Inst() {
+    override fun toString(): String {
+        return ReturnOp.javaClass.simpleName
+    }
+}

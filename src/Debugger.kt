@@ -1,6 +1,6 @@
 import java.lang.RuntimeException
 
-class Debugger(program: List<Stmt>, val types: Map<Int, Type>) {
+class Debugger(program: List<Function>, val types: Map<Int, Type>) {
     val exprById = mutableMapOf<Int, Expr>()
     val stmtById = mutableMapOf<Int, Stmt>()
 
@@ -65,6 +65,8 @@ class Debugger(program: List<Stmt>, val types: Map<Int, Type>) {
     }
 
     init {
-        program.forEach(::addStmt)
+        for (function in program) {
+            function.body.forEach(::addStmt)
+        }
     }
 }
