@@ -2,10 +2,10 @@ import java.lang.RuntimeException
 
 class ExecutionException(override val message: String): RuntimeException(message)
 
-class VM(val code: List<Inst>) {
+class VM(val code: List<Inst>, val debugger: Debugger) {
     var currentPos: Int = 0
     var stack: Stack<Long> = Stack()
-    var marks: Stack<MutableMap<Int, Long>> = Stack()
+    var marksStack: Stack<MutableMap<Int, Long>> = Stack()
     val localsStart: Int = 0
 
     fun isDone(): Boolean {
@@ -31,7 +31,7 @@ class VM(val code: List<Inst>) {
                 stack.push(curr.op.apply(left, right))
             }
             is MarkNode -> {
-                marks.peek()[curr.id] = stack.peek()
+                marksStack.peek()[curr.id] = stack.peek()
             }
             is LookupLocal -> {
                 stack.push(stack[localsStart + curr.id])
@@ -40,11 +40,17 @@ class VM(val code: List<Inst>) {
                 stack[localsStart + curr.id] = stack.pop()
             }
             StartMarking -> {
-                marks.push(mutableMapOf())
+                marksStack.push(linkedMapOf())
             }
             EndMarking -> {
                 val value = stack.peek()
-                println("$value <= ${marks.pop()}")
+                val marks = marksStack.pop()
+                println(value)
+                for ((id, nodeValue) in marks.entries) {
+                    debugger.exprById[id]?.let {
+                        println("  ${Printer.printExpr(it)} => $nodeValue")
+                    }
+                }
             }
             Pop -> {
                 stack.pop()

@@ -30,7 +30,7 @@ class Compiler {
             }
             is Debug -> {
                 output.add(StartMarking)
-                compileExpr(expr.expr, true)
+                compileExpr(expr.child, true)
                 output.add(EndMarking)
             }
         }

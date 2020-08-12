@@ -36,7 +36,7 @@ class Printer {
             }
             is Debug -> {
                 builder.append("debug ")
-                print(expr.expr)
+                print(expr.child)
             }
         }
     }

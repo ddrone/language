@@ -16,8 +16,9 @@ fun eval(parsed: List<Stmt>) {
     val compiled = Compiler.compile(parsed)
 
     compiled.forEach(::println)
+    val debugger = Debugger(parsed)
 
-    val vm = VM(compiled)
+    val vm = VM(compiled, debugger)
     vm.loop()
     println(vm.stack)
 }

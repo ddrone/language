@@ -5,7 +5,7 @@ data class Literal(override val id: Int, val literal: Long): Expr()
 data class Unary(override val id: Int, val op: UnaryOp, val child: Expr): Expr()
 data class Binary(override val id: Int, val left: Expr, val op: BinaryOp, val right: Expr): Expr()
 data class Reference(override val id: Int, val token: Token): Expr()
-data class Debug(override val id: Int, val expr: Expr): Expr()
+data class Debug(override val id: Int, val child: Expr): Expr()
 
 enum class UnaryOp(val string: String) {
     NEGATE("-");
