@@ -17,6 +17,18 @@ enum class UnaryOp(val string: String) {
             NEGATE -> -input
         }
     }
+
+    fun argType(): Type {
+        return when (this) {
+            NEGATE -> IntType
+        }
+    }
+
+    fun resultType(): Type {
+        return when (this) {
+            NEGATE -> IntType
+        }
+    }
 }
 
 enum class BinaryOp(val string: String, val priority: Int) {
@@ -33,9 +45,33 @@ enum class BinaryOp(val string: String, val priority: Int) {
             MINUS -> left - right
             MULT -> left * right
             EQ -> (left == right).asLong()
-            else -> {
-                throw RuntimeException("do not know how to apply $this")
+            AND, OR -> {
+                throw RuntimeException("AND and OR are special cases")
             }
+        }
+    }
+
+    fun argType(): Type {
+        return when (this) {
+            OR -> BoolType
+            AND -> BoolType
+            EQ -> {
+                throw RuntimeException("EQ is special case")
+            }
+            PLUS -> IntType
+            MINUS -> IntType
+            MULT -> IntType
+        }
+    }
+
+    fun resultType(): Type {
+        return when (this) {
+            OR -> BoolType
+            AND -> BoolType
+            EQ -> BoolType
+            PLUS -> IntType
+            MINUS -> IntType
+            MULT -> IntType
         }
     }
 }

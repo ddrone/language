@@ -66,13 +66,13 @@ class VM(code: List<Inst>, val debugger: Debugger) {
             StartMarking -> {
                 marksStack.push(linkedMapOf())
             }
-            EndMarking -> {
+            is EndMarking -> {
                 val value = stack.peek()
                 val marks = marksStack.pop()
-                println(value)
+                println(debugger.printValue(curr.rootId, value))
                 for ((id, nodeValue) in marks.entries) {
                     debugger.exprById[id]?.let {
-                        println("  ${Printer.printExpr(it)} => $nodeValue")
+                        println("  ${Printer.printExpr(it)} => ${debugger.printValue(id, nodeValue)}")
                     }
                 }
             }

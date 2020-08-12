@@ -13,7 +13,9 @@ fun main() {
 
 fun eval(parsed: List<Stmt>) {
     val compiled = Compiler.compile(parsed)
-    val debugger = Debugger(parsed)
+    val typechecker = TypeChecker()
+    typechecker.typecheckProgram(parsed)
+    val debugger = Debugger(parsed, typechecker.typeById)
 
     val vm = VM(compiled, debugger)
     vm.loop()

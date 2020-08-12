@@ -2,7 +2,7 @@ import java.lang.RuntimeException
 
 class CompilerException(val nodeId: Int, override val message: String): RuntimeException(message)
 
-class Compiler {
+class Compiler() {
     var output = mutableListOf<Inst>()
     val locals = Stack<String>()
 
@@ -58,7 +58,7 @@ class Compiler {
             is Debug -> {
                 output.add(StartMarking)
                 compileExpr(expr.child, true)
-                output.add(EndMarking)
+                output.add(EndMarking(expr.id))
             }
         }
         if (isDebug) {

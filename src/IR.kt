@@ -12,11 +12,7 @@ object StartMarking: Inst() {
         return StartMarking.javaClass.simpleName
     }
 }
-object EndMarking: Inst() {
-    override fun toString(): String {
-        return EndMarking.javaClass.simpleName
-    }
-}
+data class EndMarking(val rootId: Int): Inst()
 object Pop: Inst() {
     override fun toString(): String {
         return Pop.javaClass.simpleName

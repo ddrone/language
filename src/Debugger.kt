@@ -1,4 +1,6 @@
-class Debugger(program: List<Stmt>) {
+import java.lang.RuntimeException
+
+class Debugger(program: List<Stmt>, val types: Map<Int, Type>) {
     val exprById = mutableMapOf<Int, Expr>()
     val stmtById = mutableMapOf<Int, Stmt>()
 
@@ -34,6 +36,23 @@ class Debugger(program: List<Stmt>) {
             is Debug -> {
                 addExpr(expr.child)
             }
+        }
+    }
+
+    fun printValue(value: Long, type: Type): String {
+        return when (type) {
+            IntType -> value.toString()
+            BoolType -> value.asBoolean().toString()
+        }
+    }
+
+    fun printValue(nodeId: Int, value: Long): String {
+        val type = types[nodeId]
+
+        return if (type == null) {
+            throw RuntimeException("do not have type information for node $nodeId")
+        } else {
+            printValue(value, type)
         }
     }
 
