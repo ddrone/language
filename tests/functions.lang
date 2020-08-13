@@ -5,6 +5,13 @@ fun fib(x: int): int {
     return fib(x - 1) + fib(x - 2);
 }
 
+fun listTest(): int {
+    val ls = [1, 2, 3];
+    debug ls;
+    return 0;
+}
+
 fun main(): int {
+    listTest();
     return fib(10);
 }

@@ -25,3 +25,4 @@ object ReturnOp: Inst() {
     }
 }
 data class CallOp(val funName: String, val argsCount: Int): Inst()
+data class BuildList(val itemsCount: Int): Inst()

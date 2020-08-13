@@ -41,6 +41,7 @@ class VM(code: List<Inst>, val functions: Map<String, List<Inst>>, val debugger:
     var functionsStack: Stack<FunctionFrame> = Stack()
     var stack: Stack<Int> = Stack()
     var marksStack: Stack<MutableMap<Int, Int>> = Stack()
+    val heap = Heap()
 
     init {
         functionsStack.push(FunctionFrame(code, 0))
@@ -85,10 +86,10 @@ class VM(code: List<Inst>, val functions: Map<String, List<Inst>>, val debugger:
             is EndMarking -> {
                 val value = stack.peek()
                 val marks = marksStack.pop()
-                println(debugger.printValue(curr.rootId, value))
+                println(debugger.printValue(curr.rootId, value, heap))
                 for ((id, nodeValue) in marks.entries) {
                     debugger.exprById[id]?.let {
-                        println("  ${Printer.printExpr(it)} => ${debugger.printValue(id, nodeValue)}")
+                        println("  ${Printer.printExpr(it)} => ${debugger.printValue(id, nodeValue, heap)}")
                     }
                 }
             }
@@ -131,6 +132,12 @@ class VM(code: List<Inst>, val functions: Map<String, List<Inst>>, val debugger:
                 val localsStart = stack.size() - curr.argsCount
                 val code = functions[curr.funName] ?: throw RuntimeException("unknown function ${curr.funName}")
                 functionsStack.push(FunctionFrame(code, localsStart))
+            }
+            is BuildList -> {
+                val newSize = stack.size() - curr.itemsCount
+                val resultList = (0 until curr.itemsCount).map { stack[newSize + it] }
+                stack.downsize(newSize)
+                stack.push(heap.put(ListValue(resultList)))
             }
         }
         currentFrame.advance()

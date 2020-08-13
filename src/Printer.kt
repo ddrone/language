@@ -41,15 +41,17 @@ class Printer {
             is Call -> {
                 builder.append(expr.funName.getText())
                 builder.append("(")
-                var first = true
-                for (arg in expr.args) {
-                    if (!first) {
-                        builder.append(", ")
-                    }
-                    first = false
-                    print(arg)
+                builder.separating(expr.args) {
+                    print(it)
                 }
                 builder.append(")")
+            }
+            is ListLiteral -> {
+                builder.append("[")
+                builder.separating(expr.items) {
+                    print(it)
+                }
+                builder.append("]")
             }
         }
     }

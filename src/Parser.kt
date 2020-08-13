@@ -20,6 +20,8 @@ enum class TokenType(val string: String? = null, val pattern: Regex? = null) {
     CLOSE_PAREN(string = ")"),
     OPEN_BRACE(string = "{"),
     CLOSE_BRACE(string = "}"),
+    OPEN_SQUARE(string = "["),
+    CLOSE_SQUARE(string = "]"),
     SEMICOLON(string = ";"),
     COLON(string = ":"),
     EQUALS_EQUALS(string = "=="),
@@ -290,6 +292,20 @@ class Parser(val source: String) {
                 } else {
                     Reference(freshId(), token)
                 }
+            }
+            TokenType.OPEN_SQUARE -> {
+                consume()
+                val items = mutableListOf<Expr>()
+                while (peek().type != TokenType.CLOSE_SQUARE) {
+                    items.add(expression())
+                    if (peek().type == TokenType.COMMA) {
+                        consume()
+                    } else if (peek().type != TokenType.CLOSE_SQUARE) {
+                        throw ParserException(this, "expected comma or closing square bracket when parsing list literal")
+                    }
+                }
+                consume(TokenType.CLOSE_SQUARE)
+                ListLiteral(freshId(), items)
             }
             TokenType.KEYWORD -> {
                 expression()

@@ -15,3 +15,7 @@ object BoolType: Type() {
         return BoolType.javaClass.simpleName
     }
 }
+
+data class ListType(val elem: Type): Type() {
+    override val isComparable = false
+}

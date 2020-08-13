@@ -1,4 +1,5 @@
 import java.lang.RuntimeException
+import java.lang.StringBuilder
 
 class Debugger(program: List<Function>, val types: Map<Int, Type>) {
     val exprById = mutableMapOf<Int, Expr>()
@@ -47,23 +48,39 @@ class Debugger(program: List<Function>, val types: Map<Int, Type>) {
             is Call -> {
                 expr.args.forEach(::addExpr)
             }
+            is ListLiteral -> {
+                expr.items.forEach(::addExpr)
+            }
         }
     }
 
-    fun printValue(value: Int, type: Type): String {
+    fun printValue(value: Int, type: Type, heap: Heap): String {
         return when (type) {
             IntType -> value.toString()
             BoolType -> value.asBoolean().toString()
+            is ListType -> {
+                val list = heap.items[value]
+                if (list !is ListValue) {
+                    throw RuntimeException("expected list value when printing list, got $list")
+                }
+
+                val result = StringBuilder("[")
+                result.separating(list.items) {
+                    result.append(printValue(it, type.elem, heap))
+                }
+                result.append("]")
+                result.toString()
+            }
         }
     }
 
-    fun printValue(nodeId: Int, value: Int): String {
+    fun printValue(nodeId: Int, value: Int, heap: Heap): String {
         val type = types[nodeId]
 
         return if (type == null) {
             throw RuntimeException("do not have type information for node $nodeId")
         } else {
-            printValue(value, type)
+            printValue(value, type, heap)
         }
     }
 

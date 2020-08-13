@@ -66,6 +66,12 @@ class Compiler() {
                 }
                 output.add(CallOp(expr.funName.getText(), expr.args.size))
             }
+            is ListLiteral -> {
+                expr.items.forEach {
+                    compileExpr(it, isDebug)
+                }
+                output.add(BuildList(expr.items.size))
+            }
         }
         if (isDebug) {
             output.add(MarkNode(expr.id))

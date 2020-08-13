@@ -69,6 +69,18 @@ class TypeChecker {
                 }
                 function.returnType
             }
+            is ListLiteral -> {
+                if (expr.items.isEmpty()) {
+                    throw TypingFailure(expr.id, "can't infer type of empty list")
+                }
+
+                val type = inferType(expr.items.first())
+                for (i in 1 until expr.items.size) {
+                    expectType(type, expr.items[i], "list items should have the same type")
+                }
+
+                ListType(type)
+            }
         }
 
         typeById[expr.id] = result
