@@ -37,3 +37,4 @@ expression, like `debug foo * bar + baz`.
 * Arithmetic and boolean expressions
 * Local variables
 * Recursive functions
+* Lists
