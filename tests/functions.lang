@@ -5,6 +5,13 @@ fun fib(x: int): int {
     return fib(x - 1) + fib(x - 2);
 }
 
+fun factorial(x: int): int {
+    if (x == 0 || x == 1) {
+        return 1;
+    }
+    return debug x * factorial(x - 1);
+}
+
 fun listTest(): int {
     val ls = [1, 2, 3];
     debug ls;
@@ -13,5 +20,6 @@ fun listTest(): int {
 
 fun main(): int {
     listTest();
+    factorial(10);
     return fib(10);
 }
