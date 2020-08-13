@@ -270,7 +270,7 @@ class Parser(val source: String) {
             }
             TokenType.LITERAL -> {
                 consume()
-                Literal(freshId(), token.getText().toLong())
+                Literal(freshId(), token.getText().toInt())
             }
             TokenType.IDENTIFIER -> {
                 consume()

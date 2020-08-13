@@ -50,14 +50,14 @@ class Debugger(program: List<Function>, val types: Map<Int, Type>) {
         }
     }
 
-    fun printValue(value: Long, type: Type): String {
+    fun printValue(value: Int, type: Type): String {
         return when (type) {
             IntType -> value.toString()
             BoolType -> value.asBoolean().toString()
         }
     }
 
-    fun printValue(nodeId: Int, value: Long): String {
+    fun printValue(nodeId: Int, value: Int): String {
         val type = types[nodeId]
 
         return if (type == null) {

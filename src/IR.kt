@@ -1,5 +1,5 @@
 sealed class Inst
-data class Push(val literal: Long): Inst()
+data class Push(val literal: Int): Inst()
 data class ApplyUnary(val op: UnaryOp): Inst()
 data class ApplyBinary(val op: BinaryOp): Inst()
 data class MarkNode(val id: Int): Inst()

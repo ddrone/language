@@ -3,7 +3,7 @@ import java.lang.RuntimeException
 sealed class Expr {
     abstract val id: Int
 }
-data class Literal(override val id: Int, val literal: Long): Expr()
+data class Literal(override val id: Int, val literal: Int): Expr()
 data class Unary(override val id: Int, val op: UnaryOp, val child: Expr): Expr()
 data class Binary(override val id: Int, val left: Expr, val op: BinaryOp, val right: Expr): Expr()
 data class Reference(override val id: Int, val token: Token): Expr()
@@ -13,7 +13,7 @@ data class Call(override val id: Int, val funName: Token, val args: List<Expr>):
 enum class UnaryOp(val string: String) {
     NEGATE("-");
 
-    fun apply(input: Long): Long {
+    fun apply(input: Int): Int {
         return when (this) {
             NEGATE -> -input
         }
@@ -40,12 +40,12 @@ enum class BinaryOp(val string: String, val priority: Int) {
     MINUS("-", 2),
     MULT("*", 1);
 
-    fun apply(left: Long, right: Long): Long {
+    fun apply(left: Int, right: Int): Int {
         return when (this) {
             PLUS -> left + right
             MINUS -> left - right
             MULT -> left * right
-            EQ -> (left == right).asLong()
+            EQ -> (left == right).asInt()
             AND, OR -> {
                 throw RuntimeException("AND and OR are special cases")
             }
@@ -77,12 +77,12 @@ enum class BinaryOp(val string: String, val priority: Int) {
     }
 }
 
-fun Long.asBoolean(): Boolean {
+fun Int.asBoolean(): Boolean {
     return when {
-        this == 0L -> {
+        this == 0 -> {
             false
         }
-        this == 1L -> {
+        this == 1 -> {
             true
         }
         else -> {
@@ -91,10 +91,10 @@ fun Long.asBoolean(): Boolean {
     }
 }
 
-fun Boolean.asLong(): Long {
+fun Boolean.asInt(): Int {
     return if (this) {
-        1L
+        1
     } else {
-        0L
+        0
     }
 }

@@ -39,8 +39,8 @@ class CodeFrame(val code: List<Inst>, private var currentPos: Int) {
 
 class VM(code: List<Inst>, val functions: Map<String, List<Inst>>, val debugger: Debugger) {
     var functionsStack: Stack<FunctionFrame> = Stack()
-    var stack: Stack<Long> = Stack()
-    var marksStack: Stack<MutableMap<Int, Long>> = Stack()
+    var stack: Stack<Int> = Stack()
+    var marksStack: Stack<MutableMap<Int, Int>> = Stack()
 
     init {
         functionsStack.push(FunctionFrame(code, 0))
