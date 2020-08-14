@@ -15,21 +15,6 @@ behaviour. Debug expressions in this prototype is super-powered `print`
 function, the superpower being that its evaluation will print out every single
 intermediate result as well.
 
-For example, let's say that you have an expression `foo * bar + baz` in your
-program, and it does not compute to a desired result. Using your typical
-`print` function you would have to write something like
-
-```
-print("foo = $foo")
-print("bar = $bar")
-print("baz = $baz")
-```
-
-in order to figure out why the value is not the one that you expect.
-
-In this prototype, you would just stick a word `debug` in front of an
-expression, like `debug foo * bar + baz`.
-
 For example, consider you have a function like this:
 
 ```
