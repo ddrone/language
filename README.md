@@ -49,7 +49,7 @@ fun main(): int {
 }
 ```
 
-Here is an example output:
+Here is an example output (truncated):
 
 ```
 [3]
@@ -73,51 +73,7 @@ Here is an example output:
 [3, 3]
   v => vm<addr=0>
   stack(v) => [3, 3]
-[3, 3, 3]
-  v => vm<addr=0>
-  stack(v) => [3, 3, 3]
-[3, 3, 3, 1]
-  v => vm<addr=0>
-  stack(v) => [3, 3, 3, 1]
-[3, 3, 2]
-  v => vm<addr=0>
-  stack(v) => [3, 3, 2]
-[3, 3, 2]
-  v => vm<addr=0>
-  stack(v) => [3, 3, 2]
-[3, 3, 2, 2]
-  v => vm<addr=0>
-  stack(v) => [3, 3, 2, 2]
-[3, 3, 2, 2, 1]
-  v => vm<addr=0>
-  stack(v) => [3, 3, 2, 2, 1]
-[3, 3, 2, 0]
-  v => vm<addr=0>
-  stack(v) => [3, 3, 2, 0]
-[3, 3, 2]
-  v => vm<addr=0>
-  stack(v) => [3, 3, 2]
-[3, 3, 2, 2]
-  v => vm<addr=0>
-  stack(v) => [3, 3, 2, 2]
-[3, 3, 2, 2, 2]
-  v => vm<addr=0>
-  stack(v) => [3, 3, 2, 2, 2]
-[3, 3, 2, 2, 2, 1]
-  v => vm<addr=0>
-  stack(v) => [3, 3, 2, 2, 2, 1]
-[3, 3, 2, 2, 1]
-  v => vm<addr=0>
-  stack(v) => [3, 3, 2, 2, 1]
-[3, 3, 2, 2, 1]
-  v => vm<addr=0>
-  stack(v) => [3, 3, 2, 2, 1]
-[3, 3, 2, 2, 1, 1]
-  v => vm<addr=0>
-  stack(v) => [3, 3, 2, 2, 1, 1]
-[3, 3, 2, 2, 1, 1, 1]
-  v => vm<addr=0>
-  stack(v) => [3, 3, 2, 2, 1, 1, 1]
+...
 ```
 
 ### Debug expressions
