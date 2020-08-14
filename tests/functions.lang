@@ -25,6 +25,7 @@ fun listTest(): int {
 
 fun main(): int {
     listTest();
-    factorial(10);
+    val v = spawn factorial(5);
+    debug v;
     return fib(10);
 }

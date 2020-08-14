@@ -88,6 +88,9 @@ class TypeChecker {
 
                 ListType(type)
             }
+            is Spawn -> {
+                VmType(inferType(expr.child))
+            }
         }
 
         typeById[expr.id] = result

@@ -23,3 +23,8 @@ data class ListType(val elem: Type): Type() {
     override val isComparable = false
     override val isAllocated = true
 }
+
+data class VmType(val elem: Type): Type() {
+    override val isComparable = false
+    override val isAllocated = true
+}

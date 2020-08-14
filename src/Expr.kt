@@ -10,6 +10,7 @@ data class Reference(override val id: Int, val token: Token): Expr()
 data class Debug(override val id: Int, val child: Expr): Expr()
 data class Call(override val id: Int, val funName: Token, val args: List<Expr>): Expr()
 data class ListLiteral(override val id: Int, val items: List<Expr>): Expr()
+data class Spawn(override val id: Int, val child: Expr): Expr()
 
 enum class UnaryOp(val string: String) {
     NEGATE("-");

@@ -53,6 +53,10 @@ class Printer {
                 }
                 builder.append("]")
             }
+            is Spawn -> {
+                builder.append("spawn ")
+                print(expr.child)
+            }
         }
     }
 

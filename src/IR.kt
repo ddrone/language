@@ -26,3 +26,4 @@ object ReturnOp: Inst() {
 }
 data class CallOp(val funName: String, val argsCount: Int): Inst()
 data class BuildList(val itemsCount: Int): Inst()
+data class SpawnOp(val code: List<Inst>): Inst()

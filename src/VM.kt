@@ -168,6 +168,11 @@ class VM(code: List<Inst>, val functions: Map<String, List<Inst>>, val debugger:
                 stack.downsize(newSize)
                 stack.push(heap.put(ListValue(resultList)))
             }
+            is SpawnOp -> {
+                val childVm = VM(curr.code, functions, debugger)
+                val result = heap.put(ChildVmValue(childVm))
+                stack.push(result)
+            }
         }
         currentFrame.advance()
     }

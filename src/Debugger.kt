@@ -51,6 +51,9 @@ class Debugger(program: List<Function>, val types: Map<Int, Type>) {
             is ListLiteral -> {
                 expr.items.forEach(::addExpr)
             }
+            is Spawn -> {
+                addExpr(expr.child)
+            }
         }
     }
 
@@ -70,6 +73,9 @@ class Debugger(program: List<Function>, val types: Map<Int, Type>) {
                 }
                 result.append("]")
                 result.toString()
+            }
+            is VmType -> {
+                "vm<addr=$value>"
             }
         }
     }

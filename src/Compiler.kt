@@ -72,6 +72,12 @@ class Compiler() {
                 }
                 output.add(BuildList(expr.items.size))
             }
+            is Spawn -> {
+                val code = replacingOutput {
+                    compileExpr(expr.child, false)
+                }
+                output.add(SpawnOp(code))
+            }
         }
         if (isDebug) {
             output.add(MarkNode(expr.id))

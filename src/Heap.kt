@@ -10,3 +10,4 @@ class Heap {
 
 sealed class HeapValue
 data class ListValue(val items: List<Int>): HeapValue()
+data class ChildVmValue(val vm: VM): HeapValue()

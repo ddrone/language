@@ -1,4 +1,5 @@
 import java.lang.RuntimeException
+import java.security.Key
 
 enum class TokenType(val string: String? = null, val pattern: Regex? = null) {
     LITERAL(pattern = Regex("-?[0-9]+")),
@@ -42,6 +43,7 @@ object Keywords {
     val ifKw = "if"
     val elseKw = "else"
     val returnKw = "return"
+    val spawnKw = "spawn"
 
     val allKeywords = setOf(
             valKw,
@@ -49,7 +51,8 @@ object Keywords {
             debugKw,
             ifKw,
             elseKw,
-            returnKw
+            returnKw,
+            spawnKw
     )
 }
 
@@ -57,8 +60,9 @@ object BuiltinTypes {
     val boolType = "bool"
     val intType = "int"
     val listType = "list"
+    val vmType = "vm"
 
-    val allTypes: Map<String, Type> = mapOf(
+    val simpleTypes: Map<String, Type> = mapOf(
             boolType to BoolType,
             intType to IntType
     )
@@ -218,6 +222,9 @@ class Parser(val source: String) {
             if (token.getText() == Keywords.debugKw) {
                 consume()
                 Debug(freshId(), disjunction())
+            } else if (token.getText() == Keywords.spawnKw) {
+                consume()
+                Spawn(freshId(), disjunction())
             } else {
                 throw ParserException(this, "unexpected keyword ${token.getText()}")
             }
@@ -409,8 +416,14 @@ class Parser(val source: String) {
                 consume(TokenType.CLOSE_ANGLE)
                 ListType(inner)
             }
+            BuiltinTypes.vmType -> {
+                consume(TokenType.OPEN_ANGLE)
+                val inner = type()
+                consume(TokenType.CLOSE_ANGLE)
+                VmType(inner)
+            }
             else -> {
-                BuiltinTypes.allTypes[name] ?: throw ParserException(this, "unknown type $name")
+                BuiltinTypes.simpleTypes[name] ?: throw ParserException(this, "unknown type $name")
             }
         }
     }
