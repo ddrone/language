@@ -18,6 +18,7 @@ fun returnList(): list<int> {
 
 fun listTest(): int {
     val ls = returnList();
+    debug get(ls, 1);
     debug ls;
     return 0;
 }

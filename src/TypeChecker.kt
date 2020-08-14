@@ -58,16 +58,23 @@ class TypeChecker {
             }
             is Call -> {
                 val funName = expr.funName.getText()
-                val function = functionByName[funName] ?: throw TypingFailure(expr.id, "unknown function $funName")
+                val builtin = builtinByName[funName]
 
-                if (function.args.size != expr.args.size) {
-                    throw TypingFailure(expr.id, "$funName: expected ${function.args.size} arguments, got ${expr.args.size}")
+                if (builtin != null) {
+                    builtin.typecheck(expr.id, expr.args.map { TypedNode(it.id, inferType(it)) })
                 }
+                else {
+                    val function = functionByName[funName] ?: throw TypingFailure(expr.id, "unknown function $funName")
 
-                for (i in function.args.indices) {
-                    expectType(function.args[i].type, expr.args[i], "$funName: wrong type of argument ${i + 1}")
+                    if (function.args.size != expr.args.size) {
+                        throw TypingFailure(expr.id, "$funName: expected ${function.args.size} arguments, got ${expr.args.size}")
+                    }
+
+                    for (i in function.args.indices) {
+                        expectType(function.args[i].type, expr.args[i], "$funName: wrong type of argument ${i + 1}")
+                    }
+                    function.returnType
                 }
-                function.returnType
             }
             is ListLiteral -> {
                 if (expr.items.isEmpty()) {

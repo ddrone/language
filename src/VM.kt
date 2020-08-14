@@ -148,9 +148,19 @@ class VM(code: List<Inst>, val functions: Map<String, List<Inst>>, val debugger:
                 functionsStack.pop()
             }
             is CallOp -> {
+                val builtin = builtinByName[curr.funName]
                 val localsStart = stack.size() - curr.argsCount
-                val code = functions[curr.funName] ?: throw RuntimeException("unknown function ${curr.funName}")
-                functionsStack.push(FunctionFrame(code, localsStart))
+
+                if (builtin != null) {
+                    val args = (0 until curr.argsCount).map { stack[localsStart + it] }
+                    val result = builtin.eval(args, heap)
+                    stack.downsize(localsStart)
+                    stack.push(result)
+                }
+                else {
+                    val code = functions[curr.funName] ?: throw RuntimeException("unknown function ${curr.funName}")
+                    functionsStack.push(FunctionFrame(code, localsStart))
+                }
             }
             is BuildList -> {
                 val newSize = stack.size() - curr.itemsCount
