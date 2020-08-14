@@ -22,6 +22,10 @@ enum class TokenType(val string: String? = null, val pattern: Regex? = null) {
     CLOSE_BRACE(string = "}"),
     OPEN_SQUARE(string = "["),
     CLOSE_SQUARE(string = "]"),
+    LESS_EQUAL(string = "<="),
+    GREATER_EQUAL(string = ">="),
+    OPEN_ANGLE(string = "<"),
+    CLOSE_ANGLE(string = ">"),
     SEMICOLON(string = ";"),
     COLON(string = ":"),
     EQUALS_EQUALS(string = "=="),
@@ -52,6 +56,7 @@ object Keywords {
 object BuiltinTypes {
     val boolType = "bool"
     val intType = "int"
+    val listType = "list"
 
     val allTypes: Map<String, Type> = mapOf(
             boolType to BoolType,
@@ -242,11 +247,15 @@ class Parser(val source: String) {
     }
 
     private fun conjunction(): Expr {
-        return leftFold(mapOf(TokenType.AND to BinaryOp.AND), ::equality)
+        return leftFold(mapOf(TokenType.AND to BinaryOp.AND), ::comparison)
     }
 
-    private fun equality(): Expr {
-        return leftFold(mapOf(TokenType.EQUALS_EQUALS to BinaryOp.EQ), ::sum)
+    private fun comparison(): Expr {
+        return leftFold(mapOf(TokenType.EQUALS_EQUALS to BinaryOp.EQ,
+                TokenType.OPEN_ANGLE to BinaryOp.LT,
+                TokenType.CLOSE_ANGLE to BinaryOp.GT,
+                TokenType.LESS_EQUAL to BinaryOp.LEQ,
+                TokenType.GREATER_EQUAL to BinaryOp.GEQ), ::sum)
     }
 
     private fun sum(): Expr {

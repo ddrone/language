@@ -37,6 +37,10 @@ enum class BinaryOp(val string: String, val priority: Int) {
     OR("||", 5),
     AND("&&", 4),
     EQ("==", 3),
+    LT("<", 3),
+    GT(">", 3),
+    LEQ("<=", 3),
+    GEQ(">=", 3),
     PLUS("+", 2),
     MINUS("-", 2),
     MULT("*", 1);
@@ -50,6 +54,10 @@ enum class BinaryOp(val string: String, val priority: Int) {
             AND, OR -> {
                 throw RuntimeException("AND and OR are special cases")
             }
+            LT -> (left < right).asInt()
+            GT -> (left > right).asInt()
+            LEQ -> (left <= right).asInt()
+            GEQ -> (left >= right).asInt()
         }
     }
 
@@ -63,6 +71,10 @@ enum class BinaryOp(val string: String, val priority: Int) {
             PLUS -> IntType
             MINUS -> IntType
             MULT -> IntType
+            LT -> IntType
+            GT -> IntType
+            LEQ -> IntType
+            GEQ -> IntType
         }
     }
 
@@ -74,6 +86,10 @@ enum class BinaryOp(val string: String, val priority: Int) {
             PLUS -> IntType
             MINUS -> IntType
             MULT -> IntType
+            LT -> BoolType
+            GT -> BoolType
+            LEQ -> BoolType
+            GEQ -> BoolType
         }
     }
 }
