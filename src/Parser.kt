@@ -401,9 +401,18 @@ class Parser(val source: String) {
     }
 
     fun type(): Type {
-        val name = consume(TokenType.IDENTIFIER)
-        return BuiltinTypes.allTypes[name.getText()]
-                ?: throw ParserException(this, "unknown type ${name.getText()}")
+        val token = consume(TokenType.IDENTIFIER)
+        return when (val name = token.getText()) {
+            BuiltinTypes.listType -> {
+                consume(TokenType.OPEN_ANGLE)
+                val inner = type()
+                consume(TokenType.CLOSE_ANGLE)
+                ListType(inner)
+            }
+            else -> {
+                BuiltinTypes.allTypes[name] ?: throw ParserException(this, "unknown type $name")
+            }
+        }
     }
 
     fun argument(): Argument {

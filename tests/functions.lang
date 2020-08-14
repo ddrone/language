@@ -12,8 +12,12 @@ fun factorial(x: int): int {
     return debug x * factorial(x - 1);
 }
 
+fun returnList(): list<int> {
+    return [1, 2, 3];
+}
+
 fun listTest(): int {
-    val ls = [1, 2, 3];
+    val ls = returnList();
     debug ls;
     return 0;
 }
