@@ -5,13 +5,6 @@ fun fib(x: int): int {
     return fib(x - 1) + fib(x - 2);
 }
 
-fun factorial(x: int): int {
-    if (x <= 1) {
-        return 1;
-    }
-    return debug x * factorial(x - 1);
-}
-
 fun returnList(): list<int> {
     return [1, 2, 3];
 }
@@ -23,9 +16,24 @@ fun listTest(): int {
     return 0;
 }
 
+fun factorial(x: int): int {
+    if (x <= 1) {
+        return 1;
+    }
+    return x * factorial(x - 1);
+}
+
+fun stepwise(v: vm<int>): int {
+    if (step(v)) {
+        return extract(v);
+    } else {
+        debug stack(v);
+        return stepwise(v);
+    }
+}
+
 fun main(): int {
-    listTest();
-    val v = spawn factorial(5);
-    debug v;
-    return fib(10);
+    val v = spawn factorial(3);
+    debug stepwise(v);
+    return 0;
 }

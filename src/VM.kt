@@ -9,6 +9,14 @@ class FunctionFrame(code: List<Inst>, val localsStart: Int) {
         codeStack.push(CodeFrame(code, 0))
     }
 
+    fun isDone(): Boolean {
+        while (!codeStack.isEmpty() && codeStack.peek().isDone()) {
+            codeStack.pop()
+        }
+
+        return codeStack.isEmpty()
+    }
+
     fun current(): CodeFrame {
         while (codeStack.peek().isDone()) {
             codeStack.pop()
@@ -47,7 +55,7 @@ class VM(code: List<Inst>, val functions: Map<String, List<Inst>>, val debugger:
     }
 
     fun isDone(): Boolean {
-        return functionsStack.isEmpty()
+        return functionsStack.isEmpty() || functionsStack.size() == 1 && functionsStack.peek().isDone()
     }
 
     fun step() {

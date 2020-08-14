@@ -8,6 +8,118 @@ going to postpone naming this thing for as long as possible.
 
 ## Interesting features
 
+### Step-by-step execution
+
+If a language is implemented as a virtual machine, and such a virtual machine
+is implemented in a way that allows having more than one instance at a runtime
+(meaning, no global variables are used), it should be possible to allow
+programs to spawn child VMs and drive their execution.
+
+In the following example:
+
+* `spawn` is a kind of expression which evaluation will instantiate a child VM
+  evaluating given expression and pass a handle to the program.
+* `step` takes such a handle and makes an execution step, returning a boolean
+  flag indicating whether the execution has finished.
+* `extract` takes a VM handle and return the result value if VM has finished
+  its execution, halting an interpreter otherwise.
+* `stack` takes a VM handle and return a copy of its stack.
+
+```
+fun factorial(x: int): int {
+    if (x <= 1) {
+        return 1;
+    }
+    return x * factorial(x - 1);
+}
+
+fun stepwise(v: vm<int>): int {
+    if (step(v)) {
+        return extract(v);
+    } else {
+        debug stack(v);
+        return stepwise(v);
+    }
+}
+
+fun main(): int {
+    val v = spawn factorial(3);
+    debug stepwise(v);
+    return 0;
+}
+```
+
+Here is an example output:
+
+```
+[3]
+  v => vm<addr=0>
+  stack(v) => [3]
+[3]
+  v => vm<addr=0>
+  stack(v) => [3]
+[3, 3]
+  v => vm<addr=0>
+  stack(v) => [3, 3]
+[3, 3, 1]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 1]
+[3, 0]
+  v => vm<addr=0>
+  stack(v) => [3, 0]
+[3]
+  v => vm<addr=0>
+  stack(v) => [3]
+[3, 3]
+  v => vm<addr=0>
+  stack(v) => [3, 3]
+[3, 3, 3]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 3]
+[3, 3, 3, 1]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 3, 1]
+[3, 3, 2]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 2]
+[3, 3, 2]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 2]
+[3, 3, 2, 2]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 2, 2]
+[3, 3, 2, 2, 1]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 2, 2, 1]
+[3, 3, 2, 0]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 2, 0]
+[3, 3, 2]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 2]
+[3, 3, 2, 2]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 2, 2]
+[3, 3, 2, 2, 2]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 2, 2, 2]
+[3, 3, 2, 2, 2, 1]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 2, 2, 2, 1]
+[3, 3, 2, 2, 1]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 2, 2, 1]
+[3, 3, 2, 2, 1]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 2, 2, 1]
+[3, 3, 2, 2, 1, 1]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 2, 2, 1, 1]
+[3, 3, 2, 2, 1, 1, 1]
+  v => vm<addr=0>
+  stack(v) => [3, 3, 2, 2, 1, 1, 1]
+```
+
 ### Debug expressions
 
 Debug output is probably the most frequent tool used to understand a program's
