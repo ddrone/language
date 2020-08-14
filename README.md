@@ -31,29 +31,21 @@ The debug expression here would produce the following output:
 ```
 2
   x => 2
-  x => 2
-  1 => 1
   x - 1 => 1
   factorial(x - 1) => 1
   x * factorial(x - 1) => 2
 6
   x => 3
-  x => 3
-  1 => 1
   x - 1 => 2
   factorial(x - 1) => 2
   x * factorial(x - 1) => 6
 24
   x => 4
-  x => 4
-  1 => 1
   x - 1 => 3
   factorial(x - 1) => 6
   x * factorial(x - 1) => 24
 120
   x => 5
-  x => 5
-  1 => 1
   x - 1 => 4
   factorial(x - 1) => 24
   x * factorial(x - 1) => 120

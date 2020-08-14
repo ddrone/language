@@ -85,10 +85,30 @@ class VM(code: List<Inst>, val functions: Map<String, List<Inst>>, val debugger:
             is EndMarking -> {
                 val value = stack.peek()
                 val marks = marksStack.pop()
+                val printedIdentifiers = mutableSetOf<String>()
                 println(debugger.printValue(curr.rootId, value, heap))
                 for ((id, nodeValue) in marks.entries) {
-                    debugger.exprById[id]?.let {
-                        println("  ${Printer.printExpr(it)} => ${debugger.printValue(id, nodeValue, heap)}")
+                    val type = debugger.types[id]
+                            ?: throw RuntimeException("unknown type for node id=$id")
+                    val expr = debugger.exprById[id]
+                            ?: throw RuntimeException("unknown node with id=$id")
+
+                    var doPrint = true
+
+                    when {
+                        expr is Reference && printedIdentifiers.contains(expr.token.getText()) -> {
+                            doPrint = false
+                        }
+                        expr is Reference && !type.isAllocated -> {
+                            printedIdentifiers.add(expr.token.getText())
+                        }
+                        expr is Literal -> {
+                            doPrint = false
+                        }
+                    }
+
+                    if (doPrint) {
+                        println("  ${Printer.printExpr(expr)} => ${debugger.printValue(id, nodeValue, heap)}")
                     }
                 }
             }
