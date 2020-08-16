@@ -30,5 +30,4 @@ fun eval(parsed: List<Function>) {
 
     val vm = VM(mainCode, compiled, debugger)
     vm.loop()
-    println(vm.stack)
 }

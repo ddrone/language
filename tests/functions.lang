@@ -24,16 +24,16 @@ fun factorial(x: int): int {
 }
 
 fun stepwise(v: vm<int>): int {
-    if (step(v)) {
+    val stopped = step(v);
+    debug stack(v);
+    if (stopped) {
         return extract(v);
     } else {
-        debug stack(v);
         return stepwise(v);
     }
 }
 
 fun main(): int {
-    val v = spawn factorial(3);
-    debug stepwise(v);
+    stepwise(spawn 2 * (3 + 4));
     return 0;
 }
