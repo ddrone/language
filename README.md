@@ -111,3 +111,7 @@ The debug expression here would produce the following output:
 * Local variables
 * Recursive functions
 * Lists
+
+## License
+
+Apache 2
