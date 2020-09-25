@@ -2,3 +2,9 @@
 *.iml
 lang.jar
 out
+gradlew
+gradlew.bat
+.gradle
+build
+gradle
+lib

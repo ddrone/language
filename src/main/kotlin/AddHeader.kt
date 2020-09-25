@@ -36,12 +36,14 @@ val header = """
 
 val sourceHeader = header.lines().map { "// $it" }.joinToString("\n")
 
-File(".").walkTopDown().forEach {
-    val extension = it.extension
-    if (extension == "kt" || extension == "kts") {
-        val contents = it.readText()
-        if (!contents.startsWith("// Copyright")) {
-            it.writeText("$sourceHeader\n\n$contents")
+fun main() {
+    File(".").walkTopDown().forEach {
+        val extension = it.extension
+        if (extension == "kt" || extension == "kts") {
+            val contents = it.readText()
+            if (!contents.startsWith("// Copyright")) {
+                it.writeText("$sourceHeader\n\n$contents")
+            }
         }
     }
 }
