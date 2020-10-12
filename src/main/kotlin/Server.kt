@@ -16,7 +16,8 @@ fun main() {
             return@post
         }
         val parsed = Parser(code).parse()
-        eval(parsed)
-        it.result("check server output")
+        val output = CollectOutput()
+        eval(parsed, output)
+        it.result(output.builder.toString())
     }
 }

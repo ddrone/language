@@ -58,7 +58,7 @@ class CodeFrame(val code: List<Inst>, private var currentPos: Int) {
     }
 }
 
-class VM(code: List<Inst>, val functions: Map<String, List<Inst>>, val debugger: Debugger) {
+class VM(code: List<Inst>, val functions: Map<String, List<Inst>>, val debugger: Debugger, val output: VMOutput) {
     var functionsStack: Stack<FunctionFrame> = Stack()
     var stack: Stack<Int> = Stack()
     var marksStack: Stack<MutableMap<Int, Int>> = Stack()
@@ -108,7 +108,7 @@ class VM(code: List<Inst>, val functions: Map<String, List<Inst>>, val debugger:
                 val value = stack.peek()
                 val marks = marksStack.pop()
                 val printedIdentifiers = mutableSetOf<String>()
-                println(debugger.printValue(curr.rootId, value, heap))
+                output.output(debugger.printValue(curr.rootId, value, heap))
                 for ((id, nodeValue) in marks.entries) {
                     val type = debugger.types[id]
                             ?: throw RuntimeException("unknown type for node id=$id")
@@ -130,7 +130,7 @@ class VM(code: List<Inst>, val functions: Map<String, List<Inst>>, val debugger:
                     }
 
                     if (doPrint) {
-                        println("  ${Printer.printExpr(expr)} => ${debugger.printValue(id, nodeValue, heap)}")
+                        output.output("  ${Printer.printExpr(expr)} => ${debugger.printValue(id, nodeValue, heap)}")
                     }
                 }
             }
@@ -191,7 +191,7 @@ class VM(code: List<Inst>, val functions: Map<String, List<Inst>>, val debugger:
                 stack.push(heap.put(ListValue(resultList)))
             }
             is SpawnOp -> {
-                val childVm = VM(curr.code, functions, debugger)
+                val childVm = VM(curr.code, functions, debugger, output)
                 val result = heap.put(ChildVmValue(childVm))
                 stack.push(result)
             }

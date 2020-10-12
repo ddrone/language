@@ -21,12 +21,12 @@ fun main() {
             println(it)
             val source = it.readText()
             val parsed = Parser(source).parse()
-            eval(parsed)
+            eval(parsed, StdOutput)
         }
     }
 }
 
-fun eval(parsed: List<Function>) {
+fun eval(parsed: List<Function>, output: VMOutput) {
     val typechecker = TypeChecker()
     typechecker.typecheckProgram(parsed)
 
@@ -42,6 +42,6 @@ fun eval(parsed: List<Function>) {
 
     val mainCode = compiled["main"] ?: throw RuntimeException("compiled code has main missing?!")
 
-    val vm = VM(mainCode, compiled, debugger)
+    val vm = VM(mainCode, compiled, debugger, output)
     vm.loop()
 }
