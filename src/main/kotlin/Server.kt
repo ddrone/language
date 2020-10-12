@@ -2,7 +2,9 @@ import io.javalin.Javalin
 import java.io.File
 
 fun main() {
-    val app = Javalin.create().start(31337)
+    val app = Javalin.create {
+        it.showJavalinBanner = false
+    }.start(31337)
     app.get("/") {
         val index = File("static/index.html").readText()
         it.html(index)
