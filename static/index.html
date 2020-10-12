@@ -1,8 +1,31 @@
 <html>
 <body>
-<form method="post" action="/run">
-    <textarea name="code"></textarea>
-    <input type="submit" />
-</form>
+<div>
+    <textarea id="code"></textarea>
+</div>
+<div id="response">
+</div>
+<div>
+    <button id="eval">Evaluate</button>
+</div>
+<script>
+    let evalButton = document.getElementById('eval');
+    let code = document.getElementById('code');
+    let responseDiv = document.getElementById('response');
+    evalButton.addEventListener('click', async () => {
+        let codeText = code.value;
+
+        let data = new URLSearchParams();
+        data.append('code', codeText);
+        const response = await fetch('/run', {
+            method: 'POST',
+            cache: 'no-cache',
+            body: data
+        });
+
+        let responseText = await response.text();
+        responseDiv.innerText = responseText;
+    });
+</script>
 </body>
 </html>
