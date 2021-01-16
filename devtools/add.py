@@ -1,8 +1,6 @@
-# This is going to be a script that will be used to update a file in Git
-# repository easy with generated commit message.
+# Update a single file in Git repository with generated commit message.
 
 import git
-import os
 import sys
 from os import path
 
@@ -22,6 +20,7 @@ def find_git_repo(root):
 
     raise Exception(f'no git repository found from {root}')
 
+
 # Accepts absolute path for a file to be updated
 def update_file(file):
     if not path.isfile(file):
@@ -37,6 +36,7 @@ def update_file(file):
     repo.index.add([file])
     message = f'Update {rel_file}'
     repo.index.commit(message)
+
 
 def main():
     [_, file] = sys.argv
