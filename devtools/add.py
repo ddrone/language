@@ -34,8 +34,9 @@ def update_file(file):
     if len(repo.index.diff('HEAD')) > 0:
         raise Exception(f'Repo {repo_dir} have staged files')
 
-    # repo.index.add([file])
+    repo.index.add([file])
     message = f'Update {rel_file}'
+    repo.index.commit(message)
 
 def main():
     [_, file] = sys.argv
