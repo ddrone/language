@@ -54,7 +54,7 @@ fn parse_card(v: &Yaml) -> Result<Card, &str> {
 
 fn main() {
     let input = fs::read_to_string("note.md").expect("oops");
-    let parser = Parser::new(&*input);
+    let parser = Parser::new(&input);
     let mut cards: Vec<Card> = Vec::new();
 
     let mut parsing_card = false;
