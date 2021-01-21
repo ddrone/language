@@ -67,7 +67,7 @@ fn main() {
             }
             Event::End(Tag::CodeBlock(_)) => parsing_card = false,
             Event::Text(s) => {
-                let yaml = YamlLoader::load_from_str(&*s).expect("invalid yaml");
+                let yaml = YamlLoader::load_from_str(&s).expect("invalid yaml");
                 if parsing_card {
                     for doc in yaml {
                         cards.push(parse_card(&doc).expect("invalid card"));
