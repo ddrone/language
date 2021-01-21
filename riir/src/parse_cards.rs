@@ -1,14 +1,21 @@
-use std::fs;
-use pulldown_cmark::{Parser, Event, Tag, CodeBlockKind, CowStr};
-use serde::{Serialize, Deserialize};
 use chrono::prelude::*;
-use yaml_rust::{YamlLoader, Yaml};
+use pulldown_cmark::{CodeBlockKind, CowStr, Event, Parser, Tag};
+use serde::{Deserialize, Serialize};
+use std::fs;
 use yaml_rust::yaml::Hash;
+use yaml_rust::{Yaml, YamlLoader};
 
 #[derive(Serialize, Deserialize, Debug)]
 enum CardData {
-    Simple { front: String, back: String },
-    Cloze { text: String, hint: String, answer: String },
+    Simple {
+        front: String,
+        back: String,
+    },
+    Cloze {
+        text: String,
+        hint: String,
+        answer: String,
+    },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -16,29 +23,38 @@ struct Card {
     data: CardData,
     bucket: u8, // 2^255 days between card repetitions ought to be enough for anybody
     source_filename: String,
-    last_reviewed: DateTime<Utc>
+    last_reviewed: DateTime<Utc>,
 }
 
 // TODO: figure out what this type signature actually means
 fn get_text_value<'a>(v: &'a Hash, key: &'a str) -> Result<&'a String, &'a str> {
-    let text = v.get(&Yaml::String(key.to_string())).ok_or("text not found")?;
+    let text = v
+        .get(&Yaml::String(key.to_string()))
+        .ok_or("text not found")?;
     match text {
         Yaml::String(t) => Ok(t),
-        _ => Err("value is not a string")
+        _ => Err("value is not a string"),
     }
 }
 
 fn parse_simple_card(v: &Hash) -> Result<CardData, &str> {
     let front = get_text_value(v, "front")?;
     let back = get_text_value(v, "back")?;
-    Ok(CardData::Simple { front: front.clone(), back: back.clone() })
+    Ok(CardData::Simple {
+        front: front.clone(),
+        back: back.clone(),
+    })
 }
 
 fn parse_cloze_card(v: &Hash) -> Result<CardData, &str> {
     let text = get_text_value(v, "text")?;
     let hint = get_text_value(v, "hint")?;
     let answer = get_text_value(v, "answer")?;
-    Ok(CardData::Cloze { text: text.clone(), hint: hint.clone(), answer: answer.clone() })
+    Ok(CardData::Cloze {
+        text: text.clone(),
+        hint: hint.clone(),
+        answer: answer.clone(),
+    })
 }
 
 fn parse_card(v: &Yaml) -> Result<Card, &str> {
@@ -49,10 +65,10 @@ fn parse_card(v: &Yaml) -> Result<Card, &str> {
                 data,
                 bucket: 0,
                 source_filename: "note.md".to_string(),
-                last_reviewed: Utc::now()
+                last_reviewed: Utc::now(),
             })
         }
-        _ => Err("yaml hash expected")
+        _ => Err("yaml hash expected"),
     }
 }
 
