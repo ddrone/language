@@ -44,7 +44,7 @@ fn parse_cloze_card(v: &Hash) -> Result<CardData, &str> {
 fn parse_card(v: &Yaml) -> Result<Card, &str> {
     match v {
         Yaml::Hash(h) => {
-            let data = parse_simple_card(h).or(parse_cloze_card(h))?;
+            let data = parse_simple_card(h).or_else(|_| parse_cloze_card(h))?;
             Ok(Card {
                 data,
                 bucket: 0,
@@ -64,22 +64,19 @@ fn main() {
     let mut parsing_card = false;
     for token in parser {
         match token {
-            Event::Start(e) => match e {
-                Tag::CodeBlock(c) => match c {
-                    CodeBlockKind::Fenced(s) => {
+            Event::Start(e) => {
+                if let Tag::CodeBlock(c) = e {
+                    if let CodeBlockKind::Fenced(s) = c {
                         if s == CowStr::from("card") {
                             parsing_card = true
                         }
                     }
-                    _ => {}
                 }
-                _ => {}
             }
-            Event::End(e) => match e {
-                Tag::CodeBlock(_) => {
+            Event::End(e) => {
+                if let Tag::CodeBlock(_) = e {
                     parsing_card = false
                 }
-                _ => {}
             }
             Event::Text(s) => {
                 let yaml = YamlLoader::load_from_str(&*s).expect("invalid yaml");
