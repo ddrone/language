@@ -14,7 +14,7 @@ enum ParseError {
 }
 
 // TODO: figure out what this type signature actually means
-fn get_text_value<'a>(v: &'a Hash, key: &'static str) -> Result<String, ParseError> {
+fn get_text_value(v: &Hash, key: &'static str) -> Result<String, ParseError> {
     let text = v
         .get(&Yaml::String(key.to_string()))
         .ok_or(ParseError::ExpectedStringOnKey("text not found"))?;
