@@ -1,0 +1,21 @@
+[package]
+name = "note-rusty"
+version = "0.1.0"
+authors = ["Andrew Shulaev <ash.drone@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+pulldown-cmark = { version = "0.8", default-features = false }
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+yaml-rust = "0.4"
+linked-hash-map = "0.5"
+
+[[bin]]
+name = "note-rusty"
+path = "src/parse_cards.rs"
+
+[[bin]]
+name = "review_cards"
+path = "src/review_cards.rs"
