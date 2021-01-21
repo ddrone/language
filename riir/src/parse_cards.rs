@@ -1,30 +1,10 @@
 use chrono::prelude::*;
 use pulldown_cmark::{CodeBlockKind, CowStr, Event, Parser, Tag};
-use serde::{Deserialize, Serialize};
 use std::fs;
 use yaml_rust::yaml::Hash;
 use yaml_rust::{Yaml, YamlLoader};
 
-#[derive(Serialize, Deserialize, Debug)]
-enum CardData {
-    Simple {
-        front: String,
-        back: String,
-    },
-    Cloze {
-        text: String,
-        hint: String,
-        answer: String,
-    },
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct Card {
-    data: CardData,
-    bucket: u8, // 2^255 days between card repetitions ought to be enough for anybody
-    source_filename: String,
-    last_reviewed: DateTime<Utc>,
-}
+use note_rusty::*;
 
 // TODO: figure out what this type signature actually means
 fn get_text_value<'a>(v: &'a Hash, key: &'a str) -> Result<&'a String, &'a str> {

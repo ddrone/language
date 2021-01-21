@@ -1,5 +1,5 @@
 [package]
-name = "note-rusty"
+name = "note_rusty"
 version = "0.1.0"
 authors = ["Andrew Shulaev <ash.drone@gmail.com>"]
 edition = "2018"
@@ -12,8 +12,12 @@ serde_json = "1.0"
 yaml-rust = "0.4"
 linked-hash-map = "0.5"
 
+[lib]
+name = "note_rusty"
+path = "src/lib.rs"
+
 [[bin]]
-name = "note-rusty"
+name = "parse_cards"
 path = "src/parse_cards.rs"
 
 [[bin]]
