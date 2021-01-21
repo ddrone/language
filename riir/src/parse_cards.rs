@@ -60,20 +60,12 @@ fn main() {
     let mut parsing_card = false;
     for token in parser {
         match token {
-            Event::Start(e) => {
-                if let Tag::CodeBlock(c) = e {
-                    if let CodeBlockKind::Fenced(s) = c {
-                        if s == CowStr::from("card") {
-                            parsing_card = true
-                        }
-                    }
+            Event::Start(Tag::CodeBlock(CodeBlockKind::Fenced(s))) => {
+                if s == CowStr::from("card") {
+                    parsing_card = true
                 }
             }
-            Event::End(e) => {
-                if let Tag::CodeBlock(_) = e {
-                    parsing_card = false
-                }
-            }
+            Event::End(Tag::CodeBlock(_)) => parsing_card = false,
             Event::Text(s) => {
                 let yaml = YamlLoader::load_from_str(&*s).expect("invalid yaml");
                 if parsing_card {
