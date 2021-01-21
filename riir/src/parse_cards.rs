@@ -13,7 +13,6 @@ enum ParseError {
     NotHash,
 }
 
-// TODO: figure out what this type signature actually means
 fn get_text_value(v: &Hash, key: &'static str) -> Result<String, ParseError> {
     let text = v
         .get(&Yaml::String(key.to_string()))
