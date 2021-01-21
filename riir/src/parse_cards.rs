@@ -14,12 +14,12 @@ enum ParseError {
 }
 
 // TODO: figure out what this type signature actually means
-fn get_text_value<'a>(v: &'a Hash, key: &'static str) -> Result<&'a String, ParseError> {
+fn get_text_value<'a>(v: &'a Hash, key: &'static str) -> Result<String, ParseError> {
     let text = v
         .get(&Yaml::String(key.to_string()))
         .ok_or(ParseError::ExpectedStringOnKey("text not found"))?;
     match text {
-        Yaml::String(t) => Ok(t),
+        Yaml::String(t) => Ok(t.to_string()),
         _ => Err(ParseError::MissingKey(key)),
     }
 }
@@ -27,21 +27,14 @@ fn get_text_value<'a>(v: &'a Hash, key: &'static str) -> Result<&'a String, Pars
 fn parse_simple_card(v: &Hash) -> Result<CardData, ParseError> {
     let front = get_text_value(v, "front")?;
     let back = get_text_value(v, "back")?;
-    Ok(CardData::Simple {
-        front: front.clone(),
-        back: back.clone(),
-    })
+    Ok(CardData::Simple { front, back })
 }
 
 fn parse_cloze_card(v: &Hash) -> Result<CardData, ParseError> {
     let text = get_text_value(v, "text")?;
     let hint = get_text_value(v, "hint")?;
     let answer = get_text_value(v, "answer")?;
-    Ok(CardData::Cloze {
-        text: text.clone(),
-        hint: hint.clone(),
-        answer: answer.clone(),
-    })
+    Ok(CardData::Cloze { text, hint, answer })
 }
 
 fn parse_card(v: &Yaml) -> Result<Card, ParseError> {
