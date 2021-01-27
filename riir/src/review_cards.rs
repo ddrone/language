@@ -11,9 +11,9 @@ fn yes_no() -> bool {
             .read_line(&mut input)
             .expect("did not get input");
         if input == "yes\n" {
-            return true
+            return true;
         } else if input == "no\n" {
-            return false
+            return false;
         } else {
             print!("Did not get expected answer, enter 'yes' or 'no': ");
         }
