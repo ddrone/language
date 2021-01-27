@@ -4,7 +4,7 @@ use std::io;
 
 // TODO: this does not work lol
 fn yes_no() -> bool {
-    let mut input: String = "".to_string();
+    let mut input: String = String::new();
     loop {
         io::stdin()
             .read_line(&mut input)
@@ -24,7 +24,7 @@ fn review_card(card: &CardData) -> bool {
     match card {
         CardData::Simple { front, back } => {
             println!("{}", front);
-            let mut input: String = "".to_string();
+            let mut input: String = String::new();
             io::stdin()
                 .read_line(&mut input)
                 .expect("did not get input");
@@ -38,7 +38,7 @@ fn review_card(card: &CardData) -> bool {
         } => {
             println!("{}", text);
             // TODO: do not forget to use hint in the next iteration
-            let mut input: String = "".to_string();
+            let mut input: String = String::new();
             io::stdin()
                 .read_line(&mut input)
                 .expect("did not get input");
