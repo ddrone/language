@@ -6,14 +6,16 @@ use std::io;
 fn yes_no() -> bool {
     let mut input: String = "".to_string();
     loop {
-        io::stdin().read_line(&mut input).expect("did not get input");
+        io::stdin()
+            .read_line(&mut input)
+            .expect("did not get input");
         if input == "yes" {
-            return true
+            return true;
         } else if input == "no" {
-            return false
+            return false;
         } else {
             print!("Did not get expected answer, enter 'yes' or 'no': ");
-            continue
+            continue;
         }
     }
 }
@@ -23,15 +25,23 @@ fn review_card(card: &CardData) -> bool {
         CardData::Simple { front, back } => {
             println!("{}", front);
             let mut input: String = "".to_string();
-            io::stdin().read_line(&mut input).expect("did not get input");
+            io::stdin()
+                .read_line(&mut input)
+                .expect("did not get input");
             println!("Expected: {}", back);
             println!("Actual: {}", input);
         }
-        CardData::Cloze { text, hint: _, answer } => {
+        CardData::Cloze {
+            text,
+            hint: _,
+            answer,
+        } => {
             println!("{}", text);
             // TODO: do not forget to use hint in the next iteration
             let mut input: String = "".to_string();
-            io::stdin().read_line(&mut input).expect("did not get input");
+            io::stdin()
+                .read_line(&mut input)
+                .expect("did not get input");
             println!("Expected: {}", answer);
             println!("Actual: {}", input);
         }
