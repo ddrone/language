@@ -4,18 +4,19 @@ use std::io;
 use std::io::Write;
 
 fn yes_no() -> bool {
-    io::stdout().flush().expect("i/o error");
     let mut input: String = String::new();
-    io::stdin()
-        .read_line(&mut input)
-        .expect("did not get input");
-    if input == "yes\n" {
-        true
-    } else if input == "no\n" {
-        false
-    } else {
-        print!("Did not get expected answer, enter 'yes' or 'no': ");
-        yes_no()
+    loop {
+        io::stdout().flush().expect("i/o error");
+        io::stdin()
+            .read_line(&mut input)
+            .expect("did not get input");
+        if input == "yes\n" {
+            return true
+        } else if input == "no\n" {
+            return false
+        } else {
+            print!("Did not get expected answer, enter 'yes' or 'no': ");
+        }
     }
 }
 
