@@ -1,22 +1,21 @@
 use note_rusty::*;
 use std::fs;
 use std::io;
+use std::io::Write;
 
-// TODO: this does not work lol
 fn yes_no() -> bool {
+    io::stdout().flush().expect("i/o error");
     let mut input: String = String::new();
-    loop {
-        io::stdin()
-            .read_line(&mut input)
-            .expect("did not get input");
-        if input == "yes" {
-            return true;
-        } else if input == "no" {
-            return false;
-        } else {
-            print!("Did not get expected answer, enter 'yes' or 'no': ");
-            continue;
-        }
+    io::stdin()
+        .read_line(&mut input)
+        .expect("did not get input");
+    if input == "yes\n" {
+        true
+    } else if input == "no\n" {
+        false
+    } else {
+        print!("Did not get expected answer, enter 'yes' or 'no': ");
+        yes_no()
     }
 }
 
