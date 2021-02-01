@@ -23,3 +23,7 @@ path = "src/parse_cards.rs"
 [[bin]]
 name = "review_cards"
 path = "src/review_cards.rs"
+
+[[bin]]
+name = "serve"
+path = "src/serve.rs"
