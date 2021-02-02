@@ -1,12 +1,12 @@
+use iron::mime::*;
 use iron::prelude::*;
 use iron::status;
-use iron::mime::*;
+use pulldown_cmark::{html, Options, Parser};
 use router::Router;
-use urlencoded::{UrlEncodedQuery, UrlDecodingError};
 use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
 use std::io::Error;
-use pulldown_cmark::{Parser, Options, html};
+use urlencoded::{UrlDecodingError, UrlEncodedQuery};
 
 fn view_file(request: &mut Request) -> IronResult<Response> {
     let mut response = Response::new();
@@ -15,7 +15,7 @@ fn view_file(request: &mut Request) -> IronResult<Response> {
         Ok(map) => map,
         Err(e) => {
             response.set_mut(status::BadRequest);
-            return Ok(response)
+            return Ok(response);
         }
     };
     let path = match result.get("path") {
@@ -23,7 +23,7 @@ fn view_file(request: &mut Request) -> IronResult<Response> {
             response.set_mut(status::BadRequest);
             return Ok(response);
         }
-        Some(nums) => nums
+        Some(nums) => nums,
     };
 
     // TODO: ensure that the path does not go outside the working directory
@@ -31,7 +31,7 @@ fn view_file(request: &mut Request) -> IronResult<Response> {
         Ok(c) => c,
         Err(_) => {
             response.set_mut(status::BadRequest);
-            return Ok(response)
+            return Ok(response);
         }
     };
 
