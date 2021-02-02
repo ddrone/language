@@ -20,15 +20,3 @@ params = "0.8"
 [lib]
 name = "note_rusty"
 path = "src/lib.rs"
-
-[[bin]]
-name = "parse_cards"
-path = "src/parse_cards.rs"
-
-[[bin]]
-name = "review_cards"
-path = "src/review_cards.rs"
-
-[[bin]]
-name = "serve"
-path = "src/serve.rs"
