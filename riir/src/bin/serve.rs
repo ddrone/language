@@ -6,6 +6,7 @@ use urlencoded::{UrlEncodedQuery, UrlDecodingError};
 use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
 use std::io::Error;
+use pulldown_cmark::{Parser, Options, html};
 
 fn view_file(request: &mut Request) -> IronResult<Response> {
     let mut response = Response::new();
@@ -25,6 +26,7 @@ fn view_file(request: &mut Request) -> IronResult<Response> {
         Some(nums) => nums
     };
 
+    // TODO: ensure that the path does not go outside the working directory
     let content = match std::fs::read_to_string(&path[0]) {
         Ok(c) => c,
         Err(_) => {
@@ -33,11 +35,13 @@ fn view_file(request: &mut Request) -> IronResult<Response> {
         }
     };
 
+    let mut rendered = String::new();
+    let parser = Parser::new(&content);
+    html::push_html(&mut rendered, parser);
+
     response.set_mut(status::Ok);
     response.set_mut(mime!(Text/Html; Charset=Utf8));
-    response.set_mut(format!(r#"
-        u wot m8 {}
-    "#, content));
+    response.set_mut(rendered);
 
     Ok(response)
 }
