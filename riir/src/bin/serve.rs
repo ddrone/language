@@ -5,6 +5,7 @@ use router::Router;
 use urlencoded::{UrlEncodedQuery, UrlDecodingError};
 use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
+use std::io::Error;
 
 fn view_file(request: &mut Request) -> IronResult<Response> {
     let mut response = Response::new();
@@ -24,11 +25,19 @@ fn view_file(request: &mut Request) -> IronResult<Response> {
         Some(nums) => nums
     };
 
+    let content = match std::fs::read_to_string(&path[0]) {
+        Ok(c) => c,
+        Err(_) => {
+            response.set_mut(status::BadRequest);
+            return Ok(response)
+        }
+    };
+
     response.set_mut(status::Ok);
     response.set_mut(mime!(Text/Html; Charset=Utf8));
     response.set_mut(format!(r#"
         u wot m8 {}
-    "#, path[0]));
+    "#, content));
 
     Ok(response)
 }
