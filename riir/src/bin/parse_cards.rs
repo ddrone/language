@@ -1,5 +1,5 @@
-use std::fs;
 use note_rusty::*;
+use std::fs;
 
 fn main() {
     let cards: Vec<Card> = parse_file("note.md");

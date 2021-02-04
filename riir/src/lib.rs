@@ -1,6 +1,6 @@
 use chrono::prelude::*;
-use serde::{Deserialize, Serialize};
 use pulldown_cmark::{CodeBlockKind, CowStr, Event, Parser, Tag};
+use serde::{Deserialize, Serialize};
 use std::fs;
 use yaml_rust::yaml::Hash;
 use yaml_rust::{Yaml, YamlLoader};
