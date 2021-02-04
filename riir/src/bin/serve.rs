@@ -3,6 +3,7 @@ use iron::prelude::*;
 use iron::status;
 use pulldown_cmark::{html, Parser};
 use router::Router;
+use std::fs;
 use urlencoded::UrlEncodedQuery;
 
 fn view_file(request: &mut Request) -> IronResult<Response> {
@@ -35,7 +36,6 @@ fn view_file(request: &mut Request) -> IronResult<Response> {
     let mut rendered = String::new();
     let parser = Parser::new(&content);
     html::push_html(&mut rendered, parser);
-
     response.set_mut(status::Ok);
     response.set_mut(mime!(Text/Html; Charset=Utf8));
     response.set_mut(rendered);
@@ -44,6 +44,12 @@ fn view_file(request: &mut Request) -> IronResult<Response> {
 }
 
 fn main() {
+    let paths = fs::read_dir("./").unwrap();
+
+    for path in paths {
+        println!("{}", path.unwrap().path().display());
+    }
+
     let mut router = Router::new();
     router.get("/view", view_file, "root");
     Iron::new(router).http("localhost:31337").unwrap();
