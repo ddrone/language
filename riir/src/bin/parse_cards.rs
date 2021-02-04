@@ -36,14 +36,14 @@ fn parse_cloze_card(v: &Hash) -> Result<CardData, ParseError> {
     Ok(CardData::Cloze { text, hint, answer })
 }
 
-fn parse_card(v: &Yaml) -> Result<Card, ParseError> {
+fn parse_card(file_name: &str, v: &Yaml) -> Result<Card, ParseError> {
     match v {
         Yaml::Hash(h) => {
             let data = parse_simple_card(h).or_else(|_| parse_cloze_card(h))?;
             Ok(Card {
                 data,
                 bucket: 0,
-                source_filename: "note.md".to_string(),
+                source_filename: file_name.to_string(),
                 last_reviewed: Utc::now(),
             })
         }
@@ -51,8 +51,8 @@ fn parse_card(v: &Yaml) -> Result<Card, ParseError> {
     }
 }
 
-fn main() {
-    let input = fs::read_to_string("note.md").expect("oops");
+fn parse_file(file_name: &str) -> Vec<Card> {
+    let input = fs::read_to_string(file_name).expect("oops");
     let parser = Parser::new(&input);
     let mut cards: Vec<Card> = Vec::new();
 
@@ -69,7 +69,7 @@ fn main() {
                 let yaml = YamlLoader::load_from_str(&s).expect("invalid yaml");
                 if parsing_card {
                     for doc in yaml {
-                        cards.push(parse_card(&doc).expect("invalid card"));
+                        cards.push(parse_card(file_name, &doc).expect("invalid card"));
                     }
                 }
             }
@@ -77,6 +77,11 @@ fn main() {
         }
     }
 
+    cards
+}
+
+fn main() {
+    let cards: Vec<Card> = parse_file("note.md");
     let json = serde_json::to_string(&cards).expect("serialize failed");
     fs::write("cards.json", json).expect("write failed");
 }
