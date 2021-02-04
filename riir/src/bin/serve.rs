@@ -1,19 +1,16 @@
 use iron::mime::*;
 use iron::prelude::*;
 use iron::status;
-use pulldown_cmark::{html, Options, Parser};
+use pulldown_cmark::{html, Parser};
 use router::Router;
-use std::collections::hash_map::RandomState;
-use std::collections::HashMap;
-use std::io::Error;
-use urlencoded::{UrlDecodingError, UrlEncodedQuery};
+use urlencoded::UrlEncodedQuery;
 
 fn view_file(request: &mut Request) -> IronResult<Response> {
     let mut response = Response::new();
 
     let result = match request.get_ref::<UrlEncodedQuery>() {
         Ok(map) => map,
-        Err(e) => {
+        Err(_) => {
             response.set_mut(status::BadRequest);
             return Ok(response);
         }
