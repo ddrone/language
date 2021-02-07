@@ -16,6 +16,8 @@ mime = "0.3"
 router = "0.6"
 urlencoded = "0.6"
 params = "0.8"
+lopdf = "0.26.0"
+encoding = "0.2.33"
 
 [lib]
 name = "note_rusty"
