@@ -1,3 +1,5 @@
+pub mod pdf_annotations;
+
 use chrono::prelude::*;
 use pulldown_cmark::{CodeBlockKind, CowStr, Event, Parser, Tag};
 use serde::{Deserialize, Serialize};
