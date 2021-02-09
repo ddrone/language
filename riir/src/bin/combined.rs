@@ -1,4 +1,5 @@
 use note_rusty::pdf_annotations::get_annotations;
+use note_rusty::{Card, parse_file};
 
 fn print_annotations(names: &[String]) {
     for arg in names {
@@ -14,6 +15,15 @@ fn print_annotations(names: &[String]) {
     }
 }
 
+fn parse_cards(names: &[String]) {
+    let mut cards: Vec<Card> = Vec::new();
+    for name in names {
+        cards.extend(parse_file(name))
+    }
+    let json = serde_json::to_string(&cards).expect("serialize failed");
+    std::fs::write("cards.json", json).expect("write failed");
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() < 2 {
@@ -23,6 +33,8 @@ fn main() {
 
     if args[1] == "pdf" {
         print_annotations(&args[2..])
+    } else if args[1] == "parse" {
+        parse_cards(&args[2..])
     } else {
         println!("Unrecognized command {}", args[1]);
     }
