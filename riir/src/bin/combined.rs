@@ -1,5 +1,5 @@
 use note_rusty::pdf_annotations::get_annotations;
-use note_rusty::{Card, parse_file};
+use note_rusty::{parse_file, Card};
 
 fn print_annotations(names: &[String]) {
     for arg in names {

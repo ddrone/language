@@ -1,9 +1,9 @@
+use chrono::prelude::*;
+use chrono::Duration;
 use note_rusty::*;
 use std::fs;
 use std::io;
 use std::io::Write;
-use chrono::prelude::*;
-use chrono::Duration;
 
 fn yes_no() -> bool {
     let mut input: String = String::new();
@@ -59,7 +59,10 @@ fn main() {
     for card in &mut cards {
         let time = Utc::now();
         let days_to_review = 2_i64.pow(card.bucket as u32) - 1;
-        let next_review = card.last_reviewed.checked_add_signed(Duration::days(days_to_review as i64)).unwrap();
+        let next_review = card
+            .last_reviewed
+            .checked_add_signed(Duration::days(days_to_review as i64))
+            .unwrap();
         println!("Next review: {}", next_review);
         if next_review < time {
             if review_card(&card.data) {
