@@ -1,3 +1,4 @@
+pub mod cloze;
 pub mod pdf_annotations;
 
 use chrono::prelude::*;
