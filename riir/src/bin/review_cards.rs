@@ -1,10 +1,10 @@
 use chrono::prelude::*;
 use chrono::Duration;
+use note_rusty::cloze::{Cloze, ClozeChunk};
 use note_rusty::*;
 use std::fs;
 use std::io;
 use std::io::Write;
-use note_rusty::cloze::{Cloze, ClozeChunk};
 
 fn yes_no() -> bool {
     let mut input: String = String::new();
@@ -39,7 +39,10 @@ fn render_chunk(chunk: &ClozeChunk, close_id: &String) {
 fn review_card(card: &Cloze, close_id: &String) -> bool {
     let mut back = String::new();
     for chunk in &card.chunks {
-        if let ClozeChunk::Close { ref id, ref text, .. } = chunk {
+        if let ClozeChunk::Close {
+            ref id, ref text, ..
+        } = chunk
+        {
             if id == close_id {
                 back = text.clone()
             }
@@ -79,7 +82,6 @@ fn main() {
                 }
                 review.last_reviewed = Utc::now();
             }
-
         }
     }
 

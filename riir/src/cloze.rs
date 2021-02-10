@@ -15,10 +15,7 @@ pub struct Cloze {
     pub chunks: Vec<ClozeChunk>,
 }
 
-fn parse_close_cloze<'a, 'b>(
-    text: &'a str,
-    sink: &'b mut Vec<ClozeChunk>,
-) -> Option<usize> {
+fn parse_close_cloze<'a, 'b>(text: &'a str, sink: &'b mut Vec<ClozeChunk>) -> Option<usize> {
     match text.find("}}") {
         None => None,
         Some(end) => {

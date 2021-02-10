@@ -1,15 +1,15 @@
 pub mod cloze;
 pub mod pdf_annotations;
 
+use crate::cloze::{parse_cloze, Cloze, ClozeChunk};
 use chrono::prelude::*;
 use pulldown_cmark::{CodeBlockKind, CowStr, Event, Parser, Tag};
 use serde::{Deserialize, Serialize};
-use std::fs;
+use std::collections::HashMap;
 use std::default::Default;
+use std::fs;
 use yaml_rust::yaml::Hash;
 use yaml_rust::{Yaml, YamlLoader};
-use crate::cloze::{Cloze, parse_cloze, ClozeChunk};
-use std::collections::HashMap;
 
 #[derive(Debug)]
 enum ParseError {
@@ -58,17 +58,20 @@ pub fn parse_file(file_name: &str) -> Vec<Card> {
                                 ClozeChunk::Open(_) => {}
                                 ClozeChunk::Close { id, .. } => {
                                     // TODO: add a check for duplicate keys
-                                    review_infos.insert(id.clone(), ReviewInfo {
-                                        bucket: 0,
-                                        last_reviewed: Utc::now()
-                                    });
+                                    review_infos.insert(
+                                        id.clone(),
+                                        ReviewInfo {
+                                            bucket: 0,
+                                            last_reviewed: Utc::now(),
+                                        },
+                                    );
                                 }
                             }
                         }
                         cards.push(Card {
                             data: card,
                             review: review_infos,
-                            source_filename: file_name.to_string()
+                            source_filename: file_name.to_string(),
                         })
                     }
                 }
