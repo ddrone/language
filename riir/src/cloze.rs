@@ -1,21 +1,23 @@
-#[derive(Eq, PartialEq, Debug)]
-enum ClozeChunk<T> {
-    Open(T),
+use serde::{Deserialize, Serialize};
+
+#[derive(Eq, PartialEq, Debug, Serialize, Deserialize)]
+pub enum ClozeChunk {
+    Open(String),
     Close {
-        id: Option<T>,
-        text: T,
-        hint: Option<T>,
+        id: String,
+        text: String,
+        hint: Option<String>,
     },
 }
 
-#[derive(Eq, PartialEq, Debug)]
-pub struct Cloze<'a> {
-    chunks: Vec<ClozeChunk<&'a str>>,
+#[derive(Eq, PartialEq, Debug, Serialize, Deserialize)]
+pub struct Cloze {
+    pub chunks: Vec<ClozeChunk>,
 }
 
 fn parse_close_cloze<'a, 'b>(
     text: &'a str,
-    sink: &'b mut Vec<ClozeChunk<&'a str>>,
+    sink: &'b mut Vec<ClozeChunk>,
 ) -> Option<usize> {
     match text.find("}}") {
         None => None,
@@ -25,8 +27,8 @@ fn parse_close_cloze<'a, 'b>(
                 1 => {
                     // Interpret full thing as text, no id
                     sink.push(ClozeChunk::Close {
-                        id: None,
-                        text: parts[0],
+                        id: String::new(),
+                        text: parts[0].to_string(),
                         hint: None,
                     });
                     Some(end + 2)
@@ -34,8 +36,8 @@ fn parse_close_cloze<'a, 'b>(
                 2 => {
                     // Text and id, no hint
                     sink.push(ClozeChunk::Close {
-                        id: Some(parts[0]),
-                        text: parts[1],
+                        id: parts[0].to_string(),
+                        text: parts[1].to_string(),
                         hint: None,
                     });
                     Some(end + 2)
@@ -43,9 +45,9 @@ fn parse_close_cloze<'a, 'b>(
                 3 => {
                     // Text, id and hint
                     sink.push(ClozeChunk::Close {
-                        id: Some(parts[0]),
-                        text: parts[1],
-                        hint: Some(parts[2]),
+                        id: parts[0].to_string(),
+                        text: parts[1].to_string(),
+                        hint: Some(parts[2].to_string()),
                     });
                     Some(end + 2)
                 }
@@ -64,13 +66,13 @@ pub fn parse_cloze(mut text: &str) -> Option<Cloze> {
         match text.find("{{") {
             None => {
                 if !text.is_empty() {
-                    chunks.push(ClozeChunk::Open(text));
+                    chunks.push(ClozeChunk::Open(text.to_string()));
                 }
                 break;
             }
             Some(start) => {
                 if start > 0 {
-                    chunks.push(ClozeChunk::Open(&text[..start]));
+                    chunks.push(ClozeChunk::Open(text[..start].to_string()));
                 }
                 text = &text[start + 2..];
                 match parse_close_cloze(&text, &mut chunks) {
@@ -95,15 +97,15 @@ mod tests {
             Some(Cloze {
                 chunks: vec![
                     ClozeChunk::Close {
-                        id: None,
-                        text: "London",
+                        id: String::new(),
+                        text: "London".to_string(),
                         hint: None
                     },
-                    ClozeChunk::Open(" is the capital of "),
+                    ClozeChunk::Open(" is the capital of ".to_string()),
                     ClozeChunk::Close {
-                        id: Some("c1"),
-                        text: "Great Britain",
-                        hint: Some("country")
+                        id: "c1".to_string(),
+                        text: "Great Britain".to_string(),
+                        hint: Some("country".to_string())
                     }
                 ]
             })

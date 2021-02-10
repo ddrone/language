@@ -4,6 +4,7 @@ use note_rusty::*;
 use std::fs;
 use std::io;
 use std::io::Write;
+use note_rusty::cloze::{Cloze, ClozeChunk};
 
 fn yes_no() -> bool {
     let mut input: String = String::new();
@@ -22,32 +23,35 @@ fn yes_no() -> bool {
     }
 }
 
-fn review_card(card: &CardData) -> bool {
-    match card {
-        CardData::Simple { front, back } => {
-            println!("{}", front);
-            let mut input: String = String::new();
-            io::stdin()
-                .read_line(&mut input)
-                .expect("did not get input");
-            println!("Expected: {}", back);
-            println!("Actual: {}", input);
-        }
-        CardData::Cloze {
-            text,
-            hint: _,
-            answer,
-        } => {
-            println!("{}", text);
-            // TODO: do not forget to use hint in the next iteration
-            let mut input: String = String::new();
-            io::stdin()
-                .read_line(&mut input)
-                .expect("did not get input");
-            println!("Expected: {}", answer);
-            println!("Actual: {}", input);
+fn render_chunk(chunk: &ClozeChunk, close_id: &String) {
+    match chunk {
+        ClozeChunk::Open(s) => print!("{}", s),
+        ClozeChunk::Close { id, text, .. } => {
+            if id == close_id {
+                print!("[...]")
+            } else {
+                print!("{}", text)
+            }
         }
     }
+}
+
+fn review_card(card: &Cloze, close_id: &String) -> bool {
+    let mut back = String::new();
+    for chunk in &card.chunks {
+        if let ClozeChunk::Close { ref id, ref text, .. } = chunk {
+            if id == close_id {
+                back = text.clone()
+            }
+        }
+        render_chunk(chunk, close_id);
+    }
+    let mut input: String = String::new();
+    io::stdin()
+        .read_line(&mut input)
+        .expect("did not get input");
+    println!("Expected: {}", back);
+    println!("Actual: {}", input);
     print!("Did you get it right? ");
     yes_no()
 }
@@ -57,22 +61,25 @@ fn main() {
     let mut cards: Vec<Card> = serde_json::from_str(&input).expect("parse failed");
 
     for card in &mut cards {
-        let time = Utc::now();
-        let days_to_review = 2_i64.pow(card.bucket as u32) - 1;
-        let next_review = card
-            .last_reviewed
-            .checked_add_signed(Duration::days(days_to_review as i64))
-            .unwrap();
-        println!("Next review: {}", next_review);
-        if next_review < time {
-            if review_card(&card.data) {
-                card.bucket = card.bucket + 1;
-                println!("Moving to bucket {}", card.bucket);
-            } else {
-                card.bucket = 0;
-                println!("Moving to first bucket!");
+        for (id, review) in &mut card.review {
+            let time = Utc::now();
+            let days_to_review = 2_i64.pow(review.bucket as u32) - 1;
+            let next_review = review
+                .last_reviewed
+                .checked_add_signed(Duration::days(days_to_review as i64))
+                .unwrap();
+            println!("Next review: {}", next_review);
+            if next_review < time {
+                if review_card(&card.data, &id) {
+                    review.bucket = review.bucket + 1;
+                    println!("Moving to bucket {}", review.bucket);
+                } else {
+                    review.bucket = 0;
+                    println!("Moving to first bucket!");
+                }
+                review.last_reviewed = Utc::now();
             }
-            card.last_reviewed = Utc::now();
+
         }
     }
 
