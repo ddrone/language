@@ -31,7 +31,8 @@ fn review_card(card: &Cloze, close_id: usize) -> bool {
             ClozeChunk::Open(s) => print!("{}", s),
             ClozeChunk::Close { text, .. } => {
                 if i == close_id {
-                    print!("[...]")
+                    print!("[...]");
+                    back = text.clone()
                 } else {
                     print!("{}", text)
                 }

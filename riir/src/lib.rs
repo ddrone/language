@@ -5,18 +5,7 @@ use crate::cloze::{parse_cloze, Cloze, ClozeChunk};
 use chrono::prelude::*;
 use pulldown_cmark::{CodeBlockKind, CowStr, Event, Parser, Tag};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::default::Default;
 use std::fs;
-use yaml_rust::yaml::Hash;
-use yaml_rust::{Yaml, YamlLoader};
-
-#[derive(Debug)]
-enum ParseError {
-    MissingKey(&'static str),
-    ExpectedStringOnKey(&'static str),
-    NotHash,
-}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ReviewInfo {
@@ -46,6 +35,10 @@ pub fn parse_file(file_name: &str) -> Vec<Card> {
             }
             Event::End(Tag::CodeBlock(_)) => parsing_card = false,
             Event::Text(s) => {
+                if !parsing_card {
+                    continue;
+                }
+
                 match parse_cloze(&s) {
                     None => {
                         // TODO: Implement better error handling
