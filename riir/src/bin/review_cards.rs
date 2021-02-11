@@ -44,6 +44,11 @@ fn review_card(card: &Cloze, close_id: usize) -> bool {
     io::stdin()
         .read_line(&mut input)
         .expect("did not get input");
+    input.truncate(input.len().saturating_sub(1)); // chop off trailing line break
+    if back == input {
+        return true;
+    }
+    println!("Exact match not detected.");
     println!("Expected: {}", back);
     println!("Actual: {}", input);
     print!("Did you get it right? ");
