@@ -27,7 +27,7 @@ pub struct ReviewInfo {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Card {
     pub data: Cloze,
-    pub review: HashMap<String, ReviewInfo>,
+    pub review: Vec<ReviewInfo>,
     pub source_filename: String,
 }
 
@@ -52,19 +52,15 @@ pub fn parse_file(file_name: &str) -> Vec<Card> {
                         panic!("Invalid card!")
                     }
                     Some(card) => {
-                        let mut review_infos = HashMap::new();
+                        let mut review_infos = Vec::new();
                         for chunk in &card.chunks {
                             match chunk {
                                 ClozeChunk::Open(_) => {}
-                                ClozeChunk::Close { id, .. } => {
-                                    // TODO: add a check for duplicate keys
-                                    review_infos.insert(
-                                        id.clone(),
-                                        ReviewInfo {
-                                            bucket: 0,
-                                            last_reviewed: Utc::now(),
-                                        },
-                                    );
+                                ClozeChunk::Close { .. } => {
+                                    review_infos.push(ReviewInfo {
+                                        bucket: 0,
+                                        last_reviewed: Utc::now(),
+                                    });
                                 }
                             }
                         }

@@ -23,31 +23,21 @@ fn yes_no() -> bool {
     }
 }
 
-fn render_chunk(chunk: &ClozeChunk, close_id: &String) {
-    match chunk {
-        ClozeChunk::Open(s) => print!("{}", s),
-        ClozeChunk::Close { id, text, .. } => {
-            if id == close_id {
-                print!("[...]")
-            } else {
-                print!("{}", text)
-            }
-        }
-    }
-}
-
-fn review_card(card: &Cloze, close_id: &String) -> bool {
+fn review_card(card: &Cloze, close_id: usize) -> bool {
     let mut back = String::new();
+    let mut i: usize = 0;
     for chunk in &card.chunks {
-        if let ClozeChunk::Close {
-            ref id, ref text, ..
-        } = chunk
-        {
-            if id == close_id {
-                back = text.clone()
+        match chunk {
+            ClozeChunk::Open(s) => print!("{}", s),
+            ClozeChunk::Close { text, .. } => {
+                if i == close_id {
+                    print!("[...]")
+                } else {
+                    print!("{}", text)
+                }
+                i += 1;
             }
         }
-        render_chunk(chunk, close_id);
     }
     let mut input: String = String::new();
     io::stdin()
@@ -64,7 +54,7 @@ fn main() {
     let mut cards: Vec<Card> = serde_json::from_str(&input).expect("parse failed");
 
     for card in &mut cards {
-        for (id, review) in &mut card.review {
+        for (id, review) in (&mut card.review).into_iter().enumerate() {
             let time = Utc::now();
             let days_to_review = 2_i64.pow(review.bucket as u32) - 1;
             let next_review = review
@@ -73,7 +63,7 @@ fn main() {
                 .unwrap();
             println!("Next review: {}", next_review);
             if next_review < time {
-                if review_card(&card.data, &id) {
+                if review_card(&card.data, id) {
                     review.bucket = review.bucket + 1;
                     println!("Moving to bucket {}", review.bucket);
                 } else {

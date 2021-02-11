@@ -3,11 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub enum ClozeChunk {
     Open(String),
-    Close {
-        id: String,
-        text: String,
-        hint: Option<String>,
-    },
+    Close { text: String, hint: Option<String> },
 }
 
 #[derive(Eq, PartialEq, Debug, Serialize, Deserialize)]
@@ -24,7 +20,6 @@ fn parse_close_cloze<'a, 'b>(text: &'a str, sink: &'b mut Vec<ClozeChunk>) -> Op
                 1 => {
                     // Interpret full thing as text, no id
                     sink.push(ClozeChunk::Close {
-                        id: String::new(),
                         text: parts[0].to_string(),
                         hint: None,
                     });
@@ -33,18 +28,8 @@ fn parse_close_cloze<'a, 'b>(text: &'a str, sink: &'b mut Vec<ClozeChunk>) -> Op
                 2 => {
                     // Text and id, no hint
                     sink.push(ClozeChunk::Close {
-                        id: parts[0].to_string(),
-                        text: parts[1].to_string(),
-                        hint: None,
-                    });
-                    Some(end + 2)
-                }
-                3 => {
-                    // Text, id and hint
-                    sink.push(ClozeChunk::Close {
-                        id: parts[0].to_string(),
-                        text: parts[1].to_string(),
-                        hint: Some(parts[2].to_string()),
+                        text: parts[0].to_string(),
+                        hint: Some(parts[1].to_string()),
                     });
                     Some(end + 2)
                 }
@@ -88,19 +73,17 @@ mod tests {
 
     #[test]
     fn test_parse() {
-        let result = parse_cloze("{{London}} is the capital of {{c1::Great Britain::country}}");
+        let result = parse_cloze("{{London}} is the capital of {{Great Britain::country}}");
         assert_eq!(
             result,
             Some(Cloze {
                 chunks: vec![
                     ClozeChunk::Close {
-                        id: String::new(),
                         text: "London".to_string(),
                         hint: None
                     },
                     ClozeChunk::Open(" is the capital of ".to_string()),
                     ClozeChunk::Close {
-                        id: "c1".to_string(),
                         text: "Great Britain".to_string(),
                         hint: Some("country".to_string())
                     }
