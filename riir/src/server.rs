@@ -6,7 +6,7 @@ use router::Router;
 use std::fs;
 use urlencoded::UrlEncodedQuery;
 
-fn view_file(request: &mut Request) -> IronResult<Response> {
+pub fn view_file(request: &mut Request) -> IronResult<Response> {
     let mut response = Response::new();
 
     let result = match request.get_ref::<UrlEncodedQuery>() {
@@ -43,7 +43,7 @@ fn view_file(request: &mut Request) -> IronResult<Response> {
     Ok(response)
 }
 
-fn main() {
+pub fn start_server() {
     let paths = fs::read_dir("./").unwrap();
 
     for path in paths {

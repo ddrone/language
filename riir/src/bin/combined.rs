@@ -1,4 +1,5 @@
 use note_rusty::pdf_annotations::get_annotations;
+use note_rusty::server::start_server;
 use note_rusty::{parse_file, Card};
 
 fn print_annotations(names: &[String]) {
@@ -35,6 +36,8 @@ fn main() {
         print_annotations(&args[2..])
     } else if args[1] == "parse" {
         parse_cards(&args[2..])
+    } else if args[2] == "serve" {
+        start_server();
     } else {
         println!("Unrecognized command {}", args[1]);
     }

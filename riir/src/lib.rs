@@ -1,5 +1,6 @@
 pub mod cloze;
 pub mod pdf_annotations;
+pub mod server;
 
 use crate::cloze::{parse_cloze, Cloze, ClozeChunk};
 use chrono::prelude::*;
