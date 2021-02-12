@@ -1,5 +1,6 @@
 pub mod cloze;
 pub mod pdf_annotations;
+pub mod review_cards;
 pub mod server;
 
 use crate::cloze::{parse_cloze, Cloze, ClozeChunk};

@@ -1,7 +1,7 @@
+use crate::cloze::{Cloze, ClozeChunk};
+use crate::*;
 use chrono::prelude::*;
 use chrono::Duration;
-use note_rusty::cloze::{Cloze, ClozeChunk};
-use note_rusty::*;
 use std::fs;
 use std::io;
 use std::io::Write;
@@ -55,8 +55,8 @@ fn review_card(card: &Cloze, close_id: usize) -> bool {
     yes_no()
 }
 
-fn main() {
-    let input = fs::read_to_string("cards.json").expect("oops");
+pub fn start_review(db: &str) {
+    let input = fs::read_to_string(db).expect("oops");
     let mut cards: Vec<Card> = serde_json::from_str(&input).expect("parse failed");
 
     for card in &mut cards {
@@ -82,5 +82,5 @@ fn main() {
     }
 
     let json = serde_json::to_string(&cards).expect("serialize failed");
-    std::fs::write("cards.json", json).expect("write failed");
+    std::fs::write(db, json).expect("write failed");
 }
