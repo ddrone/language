@@ -61,8 +61,8 @@ pub fn clear_screen() {
     print!("\x1B[2J\x1B[1;1H");
 }
 
-pub fn start_review(db: &str) {
-    let input = fs::read_to_string(db).expect("oops");
+pub fn start_review() {
+    let input = fs::read_to_string("cards.json").expect("oops");
     let mut cards: Vec<Card> = serde_json::from_str(&input).expect("parse failed");
     let mut reviews: Vec<(usize, usize)> = Vec::new();
 
@@ -99,5 +99,5 @@ pub fn start_review(db: &str) {
     }
 
     let json = serde_json::to_string(&cards).expect("serialize failed");
-    std::fs::write(db, json).expect("write failed");
+    std::fs::write("cards.json", json).expect("write failed");
 }

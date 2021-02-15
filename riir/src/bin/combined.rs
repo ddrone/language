@@ -1,7 +1,8 @@
 use note_rusty::pdf_annotations::get_annotations;
 use note_rusty::review_cards::start_review;
 use note_rusty::server::start_server;
-use note_rusty::{parse_file, Card};
+use note_rusty::{parse_file, read_cards_index, Card};
+use std::fs;
 
 fn print_annotations(names: &[String]) {
     for arg in names {
@@ -17,10 +18,28 @@ fn print_annotations(names: &[String]) {
     }
 }
 
-fn parse_cards(names: &[String]) {
+fn parse_cards() {
     let mut cards: Vec<Card> = Vec::new();
-    for name in names {
-        cards.extend(parse_file(name))
+    let index = read_cards_index();
+    let paths = fs::read_dir("./").unwrap();
+    for path in paths {
+        if let Ok(entry) = path {
+            if let Some(ext) = entry.path().extension() {
+                if ext == "md" {
+                    for card in parse_file(entry.path()) {
+                        match index.get(&(card.source_filename.clone(), card.text.clone())) {
+                            None => cards.push(card),
+                            Some(old_card) => {
+                                println!("Ignoring {}, already exists", &card.text);
+                                cards.push(old_card.clone())
+                            }
+                        }
+                    }
+                } else {
+                    println!("Ignoring {:?}, not markdown file, ext = {:?}", entry, ext);
+                }
+            }
+        }
     }
     let json = serde_json::to_string(&cards).expect("serialize failed");
     std::fs::write("cards.json", json).expect("write failed");
@@ -36,11 +55,11 @@ fn main() {
     if args[1] == "pdf" {
         print_annotations(&args[2..])
     } else if args[1] == "parse" {
-        parse_cards(&args[2..])
+        parse_cards()
     } else if args[1] == "serve" {
         start_server();
     } else if args[1] == "review" {
-        start_review(&args[2]);
+        start_review();
     } else {
         println!("Unrecognized command {}", args[1]);
     }

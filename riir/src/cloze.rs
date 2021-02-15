@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Eq, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Debug, Serialize, Deserialize, Clone)]
 pub enum ClozeChunk {
     Open(String),
     Close { text: String, hint: Option<String> },
 }
 
-#[derive(Eq, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Eq, PartialEq, Debug, Serialize, Deserialize, Clone)]
 pub struct Cloze {
     pub chunks: Vec<ClozeChunk>,
 }
