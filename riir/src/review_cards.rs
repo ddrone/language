@@ -82,6 +82,7 @@ pub fn start_review() {
     }
 
     reviews.shuffle(&mut thread_rng());
+    reviews.truncate(30);
 
     for (i, j) in reviews {
         let card = &mut cards[i];
