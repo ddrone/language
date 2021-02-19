@@ -52,7 +52,8 @@ mod tests {
 
     #[test]
     fn test_simple() {
-        let output = render_markdown("Eqn: $1 + 2 = 3$").unwrap();
+        let mut output = String::new();
+        render_markdown("Eqn: $1 + 2 = 3$", &mut output).unwrap();
         let expected = "<p>Eqn: <span class=\"math inline\">1 + 2 = 3</span></p>\n";
         assert_eq!(output, expected);
     }
