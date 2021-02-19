@@ -1,5 +1,6 @@
 pub mod cloze;
 pub mod pdf_annotations;
+pub mod render_cards;
 pub mod review_cards;
 pub mod server;
 

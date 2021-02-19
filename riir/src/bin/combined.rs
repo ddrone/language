@@ -1,4 +1,5 @@
 use note_rusty::pdf_annotations::get_annotations;
+use note_rusty::render_cards::render_cards;
 use note_rusty::review_cards::start_review;
 use note_rusty::server::start_server;
 use note_rusty::{parse_file, read_cards_index, Card};
@@ -60,6 +61,8 @@ fn main() {
         start_server();
     } else if args[1] == "review" {
         start_review();
+    } else if args[1] == "render" {
+        render_cards().unwrap();
     } else {
         println!("Unrecognized command {}", args[1]);
     }
