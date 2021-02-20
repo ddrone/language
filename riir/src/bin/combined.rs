@@ -28,7 +28,7 @@ fn parse_cards() {
             if let Some(ext) = entry.path().extension() {
                 if ext == "md" {
                     for card in parse_file(entry.path()) {
-                        match index.get(&(card.source_filename.clone(), card.text.clone())) {
+                        match index.get(&card.text) {
                             None => cards.push(card),
                             Some(old_card) => {
                                 println!("Ignoring {}, already exists", &card.text);

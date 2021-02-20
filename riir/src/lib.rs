@@ -26,7 +26,7 @@ pub struct Card {
     pub source_filename: String,
 }
 
-pub fn read_cards_index() -> HashMap<(String, String), Card> {
+pub fn read_cards_index() -> HashMap<String, Card> {
     let input = match fs::read_to_string("cards.json") {
         Ok(input) => input,
         Err(_) => return HashMap::new(),
@@ -34,7 +34,7 @@ pub fn read_cards_index() -> HashMap<(String, String), Card> {
     let cards: Vec<Card> = serde_json::from_str(&input).expect("parse failed");
     let mut index = HashMap::new();
     for card in cards {
-        index.insert((card.source_filename.clone(), card.text.clone()), card);
+        index.insert(card.text.clone(), card);
     }
     index
 }
