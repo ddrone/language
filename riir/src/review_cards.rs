@@ -82,7 +82,9 @@ pub fn start_review() {
     }
 
     reviews.shuffle(&mut thread_rng());
-    reviews.truncate(30);
+    let cards_to_review = 30;
+    let mut reviews_pending = reviews.len().saturating_sub(cards_to_review);
+    reviews.truncate(cards_to_review);
 
     for (i, j) in reviews {
         let card = &mut cards[i];
@@ -93,6 +95,7 @@ pub fn start_review() {
             println!("Moving to bucket {}", review.bucket);
         } else {
             review.bucket = 0;
+            reviews_pending += 1;
             clear_screen();
             println!("Moving to first bucket!");
         }
@@ -101,4 +104,6 @@ pub fn start_review() {
 
     let json = serde_json::to_string(&cards).expect("serialize failed");
     std::fs::write("cards.json", json).expect("write failed");
+
+    println!("{} reviews pending", reviews_pending);
 }
