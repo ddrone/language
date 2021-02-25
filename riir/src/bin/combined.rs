@@ -1,12 +1,9 @@
 use std::fs;
 
-use note_rusty::{Card, parse_file, read_cards_index};
 use note_rusty::pdf_annotations::get_annotations;
 use note_rusty::render_cards::render_cards;
 use note_rusty::review_cards::start_review;
-use server::start_server;
-
-pub mod server;
+use note_rusty::{parse_file, read_cards_index, Card};
 
 fn print_annotations(names: &[String]) {
     for arg in names {

@@ -6,7 +6,7 @@ use chrono::prelude::*;
 use pulldown_cmark::{CodeBlockKind, CowStr, Event, Parser, Tag};
 use serde::{Deserialize, Serialize};
 
-use crate::cloze::{Cloze, ClozeChunk, parse_cloze};
+use crate::cloze::{parse_cloze, Cloze, ClozeChunk};
 
 pub mod cloze;
 pub mod pdf_annotations;

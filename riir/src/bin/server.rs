@@ -1,10 +1,9 @@
-use warp::Filter;
 use std::process::Command;
+use warp::Filter;
 
 #[tokio::main]
 async fn main() {
-    let server = warp::path!("read" / String)
-        .map(|name| format!("File {} will go here", name));
+    let server = warp::path!("read" / String).map(|name| format!("File {} will go here", name));
 
     println!("Should start serving I think");
 
@@ -13,7 +12,5 @@ async fn main() {
         .spawn()
         .unwrap();
 
-    warp::serve(server)
-        .run(([127, 0, 0, 1], 31337))
-        .await;
+    warp::serve(server).run(([127, 0, 0, 1], 31337)).await;
 }
