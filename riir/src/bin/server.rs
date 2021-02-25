@@ -11,8 +11,8 @@ fn generate_link_list() -> String {
         let file_name = file_path.to_str().unwrap();
         result.push_str(&format!(
             r#"
-            <li><a href="/read/{}">{}</a></li>
-        "#,
+                <li><a href="/read/{}">{}</a></li>
+            "#,
             file_name, file_name
         ));
     }
