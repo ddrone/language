@@ -8,7 +8,7 @@ use std::process::Stdio;
 /// Markdown in the same codebase is extremely cursed, but I need to render some
 /// math equations and pulldown-cmark doesn't support that, so what you're going
 /// to do.
-fn render_markdown(text: &str, buffer: &mut String) -> Result<(), Error> {
+pub fn render_markdown(text: &str, buffer: &mut String) -> Result<(), Error> {
     let process = Command::new("pandoc")
         .args(&["--katex"])
         .stdin(Stdio::piped())
