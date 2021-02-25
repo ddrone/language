@@ -1,9 +1,12 @@
+use std::fs;
+
+use note_rusty::{Card, parse_file, read_cards_index};
 use note_rusty::pdf_annotations::get_annotations;
 use note_rusty::render_cards::render_cards;
 use note_rusty::review_cards::start_review;
-use note_rusty::server::start_server;
-use note_rusty::{parse_file, read_cards_index, Card};
-use std::fs;
+use server::start_server;
+
+pub mod server;
 
 fn print_annotations(names: &[String]) {
     for arg in names {
@@ -57,8 +60,6 @@ fn main() {
         print_annotations(&args[2..])
     } else if args[1] == "parse" {
         parse_cards()
-    } else if args[1] == "serve" {
-        start_server();
     } else if args[1] == "review" {
         start_review();
     } else if args[1] == "render" {

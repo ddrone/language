@@ -1,6 +1,5 @@
 use crate::cloze::{Cloze, ClozeChunk};
 use crate::*;
-use chrono::prelude::*;
 use chrono::Duration;
 use rand::seq::SliceRandom;
 use rand::thread_rng;

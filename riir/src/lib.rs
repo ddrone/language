@@ -1,16 +1,17 @@
+use std::collections::HashMap;
+use std::fs;
+use std::path::Path;
+
+use chrono::prelude::*;
+use pulldown_cmark::{CodeBlockKind, CowStr, Event, Parser, Tag};
+use serde::{Deserialize, Serialize};
+
+use crate::cloze::{Cloze, ClozeChunk, parse_cloze};
+
 pub mod cloze;
 pub mod pdf_annotations;
 pub mod render_cards;
 pub mod review_cards;
-pub mod server;
-
-use crate::cloze::{parse_cloze, Cloze, ClozeChunk};
-use chrono::prelude::*;
-use pulldown_cmark::{CodeBlockKind, CowStr, Event, Parser, Tag};
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::fs;
-use std::path::Path;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ReviewInfo {
