@@ -60,9 +60,34 @@ pub fn clear_screen() {
     print!("\x1B[2J\x1B[1;1H");
 }
 
+fn parse_cards() -> Vec<Card> {
+    let mut cards: Vec<Card> = Vec::new();
+    let index = read_cards_index();
+    let paths = fs::read_dir("./").unwrap();
+    for path in paths {
+        if let Ok(entry) = path {
+            if let Some(ext) = entry.path().extension() {
+                if ext == "md" {
+                    for card in parse_file(entry.path()) {
+                        match index.get(&card.text) {
+                            None => cards.push(card),
+                            Some(old_card) => {
+                                println!("Ignoring {}, already exists", &card.text);
+                                cards.push(old_card.clone())
+                            }
+                        }
+                    }
+                } else {
+                    println!("Ignoring {:?}, not markdown file, ext = {:?}", entry, ext);
+                }
+            }
+        }
+    }
+    cards
+}
+
 pub fn start_review() {
-    let input = fs::read_to_string("cards.json").expect("oops");
-    let mut cards: Vec<Card> = serde_json::from_str(&input).expect("parse failed");
+    let mut cards: Vec<Card> = parse_cards();
     let mut reviews: Vec<(usize, usize)> = Vec::new();
 
     for (i, card) in (&cards).into_iter().enumerate() {

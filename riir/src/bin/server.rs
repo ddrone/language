@@ -1,7 +1,7 @@
 use glob::glob;
+use note_rusty::render_cards::render_markdown;
 use std::process::Command;
 use warp::Filter;
-use note_rusty::render_cards::render_markdown;
 
 fn generate_link_list() -> String {
     let mut result = String::new();
@@ -37,7 +37,8 @@ fn view_note(name: String) -> String {
     "#.to_string();
     render_markdown(&markdown, &mut response).unwrap();
 
-    response.push_str(r#"
+    response.push_str(
+        r#"
             <script>
                 window.addEventListener('load', () => {
                     let nodes = document.querySelectorAll("span.math.inline");
@@ -49,15 +50,15 @@ fn view_note(name: String) -> String {
             </script>
         </body>
     </html>
-    "#);
+    "#,
+    );
     response
 }
 
 #[tokio::main]
 async fn main() {
     let root_handler = warp::path::end().map(|| warp::reply::html(generate_link_list()));
-    let read_handler =
-        warp::path!("read" / String).map(|name| warp::reply::html(view_note(name)));
+    let read_handler = warp::path!("read" / String).map(|name| warp::reply::html(view_note(name)));
 
     println!("Should start serving I think");
 
