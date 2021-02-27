@@ -86,8 +86,7 @@ fn parse_cards() -> Vec<Card> {
     cards
 }
 
-pub fn start_review() {
-    let mut cards: Vec<Card> = parse_cards();
+pub fn get_reviews(cards: &Vec<Card>) -> (Vec<(usize, usize)>, usize) {
     let mut reviews: Vec<(usize, usize)> = Vec::new();
 
     for (i, card) in (&cards).into_iter().enumerate() {
@@ -107,8 +106,14 @@ pub fn start_review() {
 
     reviews.shuffle(&mut thread_rng());
     let cards_to_review = 30;
-    let mut reviews_pending = reviews.len().saturating_sub(cards_to_review);
+    let reviews_pending = reviews.len().saturating_sub(cards_to_review);
     reviews.truncate(cards_to_review);
+    (reviews, reviews_pending)
+}
+
+pub fn start_review() {
+    let mut cards: Vec<Card> = parse_cards();
+    let (reviews, mut reviews_pending) = get_reviews(&cards);
 
     for (i, j) in reviews {
         let card = &mut cards[i];

@@ -69,6 +69,10 @@ fn view_note(name: String) -> String {
     response
 }
 
+fn cards() -> String {
+    String::new()
+}
+
 #[tokio::main]
 async fn main() {
     let root_handler = warp::path::end().map(|| warp::reply::html(generate_link_list()));
