@@ -36,11 +36,13 @@ fn view_note(name: String) -> String {
             <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
         </head>
         <body>
+            <div class="wrapper">
     "#.to_string();
     render_markdown(&markdown, &mut response).unwrap();
 
     response.push_str(
         r#"
+            </div>
             <script>
                 window.addEventListener('load', () => {
                     let nodes = document.querySelectorAll("span.math.inline");
@@ -50,6 +52,16 @@ fn view_note(name: String) -> String {
                     }
                 });
             </script>
+            <style>
+                .card {
+                    background: #eee;
+                    border: 1px solid #ccc;
+                    margin: 0.5em 0;
+                }
+                .wrapper {
+                    max-width: 1024px;
+                }
+            </style>
         </body>
     </html>
     "#,
