@@ -1,13 +1,13 @@
 use glob::glob;
 use note_rusty::render_cards::render_markdown;
+use note_rusty::review_cards::{get_reviews, parse_cards};
+use note_rusty::Card;
 use percent_encoding::percent_decode;
+use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
+use std::io::Write;
 use std::process::Command;
 use warp::Filter;
-use serde::{Deserialize, Serialize};
-use note_rusty::Card;
-use note_rusty::review_cards::{parse_cards, get_reviews};
-use sha2::{Sha256, Digest};
-use std::io::Write;
 
 fn generate_link_list() -> String {
     let mut result = String::new();
@@ -93,7 +93,7 @@ fn cards_to_review() -> CardsResponse {
     CardsResponse {
         file_hash: hasher.finalize().to_string(),
         cards,
-        reviews
+        reviews,
     }
 }
 
