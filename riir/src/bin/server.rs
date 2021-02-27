@@ -1,4 +1,5 @@
 use glob::glob;
+use note_rusty::cloze::ClozeChunk;
 use note_rusty::render_cards::render_markdown;
 use note_rusty::review_cards::{get_reviews, parse_cards};
 use note_rusty::Card;
@@ -75,23 +76,60 @@ fn view_note(name: String) -> String {
 }
 
 #[derive(Serialize, Deserialize)]
+struct CardReview {
+    card_index: usize,
+    deletion_index: usize,
+    rendered: String,
+    answer: String,
+}
+
+#[derive(Serialize, Deserialize)]
 struct CardsResponse {
     file_hash: String,
     cards: Vec<Card>,
-    reviews: Vec<(usize, usize)>,
+    reviews: Vec<CardReview>,
 }
 
 fn cards_to_review() -> CardsResponse {
     let cards = parse_cards();
-    let (reviews, _) = get_reviews(&cards);
+    let (reviews_raw, _) = get_reviews(&cards);
 
     let mut hasher = Sha256::new();
     for card in &cards {
         hasher.write(card.text.as_ref()).unwrap();
     }
 
+    let mut reviews = Vec::new();
+    for (card_index, deletion_index) in reviews_raw {
+        let mut source = String::new();
+        let mut answer = String::new();
+        let mut i = 0;
+        for chunk in &cards[card_index].data.chunks {
+            match chunk {
+                ClozeChunk::Open(s) => source.push_str(&s),
+                ClozeChunk::Close { text, .. } => {
+                    if i == deletion_index {
+                        source.push_str("**...**");
+                        answer.push_str(text)
+                    } else {
+                        source.push_str(text)
+                    }
+                    i += 1
+                }
+            }
+        }
+        let mut rendered = String::new();
+        render_markdown(&source, &mut rendered).unwrap();
+        reviews.push(CardReview {
+            card_index,
+            deletion_index,
+            rendered,
+            answer,
+        })
+    }
+
     CardsResponse {
-        file_hash: hasher.finalize().to_string(),
+        file_hash: format!("{:X}", hasher.finalize()),
         cards,
         reviews,
     }
