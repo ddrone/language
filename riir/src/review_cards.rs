@@ -60,7 +60,7 @@ pub fn clear_screen() {
     print!("\x1B[2J\x1B[1;1H");
 }
 
-fn parse_cards() -> Vec<Card> {
+pub fn parse_cards() -> Vec<Card> {
     let mut cards: Vec<Card> = Vec::new();
     let index = read_cards_index();
     let paths = fs::read_dir("./").unwrap();

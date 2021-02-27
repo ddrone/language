@@ -3,6 +3,11 @@ use note_rusty::render_cards::render_markdown;
 use percent_encoding::percent_decode;
 use std::process::Command;
 use warp::Filter;
+use serde::{Deserialize, Serialize};
+use note_rusty::Card;
+use note_rusty::review_cards::{parse_cards, get_reviews};
+use sha2::{Sha256, Digest};
+use std::io::Write;
 
 fn generate_link_list() -> String {
     let mut result = String::new();
@@ -69,14 +74,34 @@ fn view_note(name: String) -> String {
     response
 }
 
-fn cards() -> String {
-    String::new()
+#[derive(Serialize, Deserialize)]
+struct CardsResponse {
+    file_hash: String,
+    cards: Vec<Card>,
+    reviews: Vec<(usize, usize)>,
+}
+
+fn cards_to_review() -> CardsResponse {
+    let cards = parse_cards();
+    let (reviews, _) = get_reviews(&cards);
+
+    let mut hasher = Sha256::new();
+    for card in &cards {
+        hasher.write(card.text.as_ref()).unwrap();
+    }
+
+    CardsResponse {
+        file_hash: hasher.finalize().to_string(),
+        cards,
+        reviews
+    }
 }
 
 #[tokio::main]
 async fn main() {
     let root_handler = warp::path::end().map(|| warp::reply::html(generate_link_list()));
     let read_handler = warp::path!("read" / String).map(|name| warp::reply::html(view_note(name)));
+    let cards_handler = warp::path("review").map(|| warp::reply::json(&cards_to_review()));
 
     println!("Should start serving I think");
 
@@ -85,7 +110,7 @@ async fn main() {
         .spawn()
         .unwrap();
 
-    warp::serve(root_handler.or(read_handler))
+    warp::serve(root_handler.or(read_handler).or(cards_handler))
         .run(([127, 0, 0, 1], 31337))
         .await;
 }
