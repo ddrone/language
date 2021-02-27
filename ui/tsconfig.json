@@ -2,7 +2,11 @@
     "compilerOptions": {
         "outFile": "build/index.js",
         "sourceMap": true,
-        "watch": true
+        "module": "AMD",
+        "moduleResolution": "node",
+        "watch": true,
+        "jsx": "react-jsx",
+        "jsxImportSource": "preact"
     },
-    "include": ["src/**/*.ts"],
+    "include": ["src/**/*.tsx", "src/**/*.ts"],
 }
