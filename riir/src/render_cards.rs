@@ -9,8 +9,7 @@ use std::process::Stdio;
 /// math equations and pulldown-cmark doesn't support that, so what you're going
 /// to do.
 pub fn render_markdown(text: &str, buffer: &mut String) -> Result<(), Error> {
-    let process = Command::new("pandoc")
-        .args(&["--katex"])
+    let process = Command::new("pandoc-filter-exe")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()
