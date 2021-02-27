@@ -1,5 +1,6 @@
 use glob::glob;
 use note_rusty::render_cards::render_markdown;
+use percent_encoding::percent_decode;
 use std::process::Command;
 use warp::Filter;
 
@@ -24,7 +25,8 @@ fn generate_link_list() -> String {
 }
 
 fn view_note(name: String) -> String {
-    let markdown = std::fs::read_to_string(&name).unwrap();
+    let decoded_name = percent_decode(&name.as_bytes()).decode_utf8().unwrap();
+    let markdown = std::fs::read_to_string(&decoded_name.as_ref()).unwrap();
     let mut response = r#"
     <!DOCTYPE html>
     <html>
