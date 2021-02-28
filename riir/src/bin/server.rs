@@ -86,6 +86,7 @@ struct CardReview {
 #[derive(Serialize, Deserialize)]
 struct CardsResponse {
     file_hash: String,
+    // TODO: if not needed, remove this from the server
     cards: Vec<Card>,
     reviews: Vec<CardReview>,
 }

@@ -2,28 +2,50 @@ import * as m from 'mithril';
 
 var root = document.body;
 
-interface Card {
-    text: string;
-    expected: string;
+interface CardReview {
+    card_index: number;
+    deletion_index: number;
+    rendered: string;
+    answer: string;
+}
+
+interface CardsResponse {
+    file_hash: string;
+    reviews: CardReview[];
 }
 
 interface ReviewAttrs {
-    cards: Card[];
 }
 
 interface ReviewState {
     currentCard: number;
+    loaded: boolean;
+    response: CardsResponse;
 }
 
 const Review: m.Component<ReviewAttrs, ReviewState> = {
     oninit ({state}) {
         state.currentCard = 0;
+        state.loaded = false;
+        m.request({
+            method: "GET",
+            url: "http://localhost:31337/review"
+        })
+        .then((result) => {
+            console.log(result);
+            state.response = result as CardsResponse;
+            state.loaded = true;
+        })
     },
     view: function({attrs, state}) {
-        if (state.currentCard < attrs.cards.length) {
-            let card = attrs.cards[state.currentCard];
+        if (!state.loaded) {
+            return m("div", "Loading");
+        }
+        else if (state.currentCard < state.response.reviews.length) {
+            let card = state.response.reviews[state.currentCard];
             return m("div", [
-                m("p", card.text),
+                // TODO: inline it as HTML
+                m("p", card.rendered),
                 m("textarea"),
                 m("button", {
                     onclick: () => {
@@ -40,10 +62,7 @@ const Review: m.Component<ReviewAttrs, ReviewState> = {
 
 const Root: m.Component = {
     view: function(_) {
-        return m(Review, {cards: [
-            {text: "This is a card text", expected: "answer"},
-            {text: "This is a second card", expected: "second answer"}
-        ]})
+        return m(Review, {})
     }
 }
 
