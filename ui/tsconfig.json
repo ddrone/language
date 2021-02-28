@@ -1,0 +1,8 @@
+{
+    "compilerOptions": {
+        "outDir": "build",
+        "sourceMap": true,
+        "watch": true
+    },
+    "include": ["src/**/*.ts"],
+}

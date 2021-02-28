@@ -5,6 +5,13 @@
     </head>
     <body>
         <script src="https://unpkg.com/mithril/mithril.js"></script>
-        <script src="app.js"></script>
+        <script>
+            var exports = {};
+            var savedMithril = m;
+            function require() {
+                return savedMithril;
+            }
+        </script>
+        <script src="build/app.js"></script>
     </body>
 </html>
