@@ -140,7 +140,9 @@ fn cards_to_review() -> CardsResponse {
 async fn main() {
     let root_handler = warp::path::end().map(|| warp::reply::html(generate_link_list()));
     let read_handler = warp::path!("read" / String).map(|name| warp::reply::html(view_note(name)));
-    let cards_handler = warp::path("review").map(|| warp::reply::json(&cards_to_review()));
+    let cards_handler = warp::path("review")
+        .map(|| warp::reply::json(&cards_to_review()))
+        .with(warp::cors().allow_any_origin().build());
 
     println!("Should start serving I think");
 
