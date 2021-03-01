@@ -1,0 +1,25 @@
+name:                pandoc-filter
+version:             0.1.0.0
+github:              "ddrone/language"
+author:              "Andrew Shulaev"
+maintainer:          "ash.drone@gmail.com"
+
+dependencies:
+- base >= 4.7 && < 5
+- pandoc >= 2.11
+- pandoc-types
+- text
+
+library:
+  source-dirs: src
+
+executables:
+  pandoc-filter-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - pandoc-filter
