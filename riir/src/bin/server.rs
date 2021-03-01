@@ -80,6 +80,7 @@ struct CardReview {
     card_index: usize,
     deletion_index: usize,
     rendered: String,
+    source: String,
     answer: String,
 }
 
@@ -125,6 +126,7 @@ fn cards_to_review() -> CardsResponse {
             card_index,
             deletion_index,
             rendered,
+            source,
             answer,
         })
     }
