@@ -24,6 +24,11 @@ interface ReviewStatus {
     correct: boolean;
 }
 
+interface ApplyReviewRequest {
+    file_hash: string;
+    reviews: ReviewStatus[];
+}
+
 interface ReviewState {
     currentCard: number;
     loaded: boolean;
@@ -32,6 +37,7 @@ interface ReviewState {
     currentAnswer: string;
     showConfirmation: boolean;
     reviewStatus: ReviewStatus[];
+    reviewSent: boolean;
 }
 
 const Review: m.Component<ReviewAttrs, ReviewState> = {
@@ -42,6 +48,7 @@ const Review: m.Component<ReviewAttrs, ReviewState> = {
         state.currentAnswer = '';
         state.showConfirmation = false;
         state.reviewStatus = [];
+        state.reviewSent = false;
         m.request({
             method: "GET",
             url: "http://localhost:31337/review"
@@ -120,6 +127,21 @@ const Review: m.Component<ReviewAttrs, ReviewState> = {
         }
         else {
             console.log(state.reviewStatus);
+            if (!state.reviewSent) {
+                let requestBody: ApplyReviewRequest = {
+                    file_hash: state.response.file_hash,
+                    reviews: state.reviewStatus
+                };
+                m.request({
+                    method: "POST",
+                    url: "http://localhost:31337/apply_review",
+                    body: requestBody,
+                    withCredentials: true,
+                }).then((result) => {
+                    console.log(result);
+                });
+                state.reviewSent = true;
+            }
             return m("div", "All done!");
         }
     }

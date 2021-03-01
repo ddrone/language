@@ -94,11 +94,13 @@ struct CardsResponse {
 
 fn cards_hash(cards: &Vec<Card>) -> String {
     let mut hasher = Sha256::new();
-    for card in &cards {
+    for card in cards {
         hasher.write(card.text.as_ref()).unwrap();
         for review in &card.review {
             hasher.write(&[review.bucket]).unwrap();
-            hasher.write(&review.last_reviewed.to_string().as_bytes()).unwrap();
+            hasher
+                .write(&review.last_reviewed.to_string().as_bytes())
+                .unwrap();
         }
     }
 
@@ -146,12 +148,42 @@ fn cards_to_review() -> CardsResponse {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+struct ReviewStatus {
+    card_index: usize,
+    deletion_index: usize,
+    correct: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct ApplyReviewRequest {
+    file_hash: String,
+    reviews: Vec<ReviewStatus>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct ApplyReviewResponse {
+    response: String,
+}
+
+fn apply_reviews(request: ApplyReviewRequest) -> ApplyReviewResponse {
+    println!("{:?}", &request);
+    ApplyReviewResponse {
+        response: String::new(),
+    }
+}
+
 #[tokio::main]
 async fn main() {
     let root_handler = warp::path::end().map(|| warp::reply::html(generate_link_list()));
     let read_handler = warp::path!("read" / String).map(|name| warp::reply::html(view_note(name)));
     let cards_handler = warp::path("review")
         .map(|| warp::reply::json(&cards_to_review()))
+        .with(warp::cors().allow_any_origin().build());
+    let apply_review_handler = warp::post()
+        .and(warp::path("apply_review"))
+        .and(warp::body::json())
+        .map(|request| warp::reply::json(&apply_reviews(request)))
         .with(warp::cors().allow_any_origin().build());
 
     println!("Should start serving I think");
@@ -161,7 +193,13 @@ async fn main() {
         .spawn()
         .unwrap();
 
-    warp::serve(root_handler.or(read_handler).or(cards_handler))
-        .run(([127, 0, 0, 1], 31337))
-        .await;
+    warp::serve(
+        root_handler
+            .or(read_handler)
+            .or(cards_handler)
+            .or(apply_review_handler)
+            .with(warp::cors().allow_any_origin().build()),
+    )
+    .run(([127, 0, 0, 1], 31337))
+    .await;
 }
