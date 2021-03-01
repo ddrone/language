@@ -23,6 +23,8 @@ interface ReviewState {
     loaded: boolean;
     response: CardsResponse;
     showSource: boolean;
+    currentAnswer: string;
+    showConfirmation: boolean;
 }
 
 const Review: m.Component<ReviewAttrs, ReviewState> = {
@@ -30,6 +32,8 @@ const Review: m.Component<ReviewAttrs, ReviewState> = {
         state.currentCard = 0;
         state.loaded = false;
         state.showSource = false;
+        state.currentAnswer = '';
+        state.showConfirmation = false;
         m.request({
             method: "GET",
             url: "http://localhost:31337/review"
@@ -52,17 +56,22 @@ const Review: m.Component<ReviewAttrs, ReviewState> = {
                 m("div", !state.showSource ? [] : [
                     m("pre", card.source)
                 ]),
-                m("textarea"),
+                m("textarea", {
+                    oninput: (event: InputEvent) => {
+                        state.currentAnswer = (event.target as HTMLTextAreaElement).value;
+                    },
+                    readonly: state.showConfirmation
+                }),
                 m("button", {
                     onclick: () => {
-                        state.currentCard++;
-                        state.showSource = false;
+                        state.showConfirmation = true;
                     }
                 }, "Check"),
                 m("div", state.showSource ? [] : [
                     m("button", {
                         onclick: () => {
                             state.showSource = true;
+                            alert(state.currentAnswer);
                         }
                     }, "Show source"),
                 ]),
