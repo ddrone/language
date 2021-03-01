@@ -18,6 +18,12 @@ interface CardsResponse {
 interface ReviewAttrs {
 }
 
+interface ReviewStatus {
+    card_index: number;
+    deletion_index: number;
+    correct: boolean;
+}
+
 interface ReviewState {
     currentCard: number;
     loaded: boolean;
@@ -25,6 +31,7 @@ interface ReviewState {
     showSource: boolean;
     currentAnswer: string;
     showConfirmation: boolean;
+    reviewStatus: ReviewStatus[];
 }
 
 const Review: m.Component<ReviewAttrs, ReviewState> = {
@@ -34,6 +41,7 @@ const Review: m.Component<ReviewAttrs, ReviewState> = {
         state.showSource = false;
         state.currentAnswer = '';
         state.showConfirmation = false;
+        state.reviewStatus = [];
         m.request({
             method: "GET",
             url: "http://localhost:31337/review"
@@ -67,17 +75,51 @@ const Review: m.Component<ReviewAttrs, ReviewState> = {
                         state.showConfirmation = true;
                     }
                 }, "Check"),
+                m("div", !state.showConfirmation ? [] : [
+                    m("div", [
+                        "Expected: ",
+                        card.answer
+                    ]),
+                    m("button", {
+                        onclick: () => {
+                            state.reviewStatus.push({
+                                card_index: card.card_index,
+                                deletion_index: card.deletion_index,
+                                correct: true
+                            });
+
+                            state.currentCard++;
+                            state.currentAnswer = '';
+                            state.showConfirmation = false;
+                            state.showSource = false;
+                        }
+                    }, "Match"),
+                    m("button", {
+                        onclick: () => {
+                            state.reviewStatus.push({
+                                card_index: card.card_index,
+                                deletion_index: card.deletion_index,
+                                correct: false
+                            });
+
+                            state.currentCard++;
+                            state.currentAnswer = '';
+                            state.showConfirmation = false;
+                            state.showSource = false;
+                        }
+                    }, "No match")
+                ]),
                 m("div", state.showSource ? [] : [
                     m("button", {
                         onclick: () => {
                             state.showSource = true;
-                            alert(state.currentAnswer);
                         }
                     }, "Show source"),
                 ]),
             ]);
         }
         else {
+            console.log(state.reviewStatus);
             return m("div", "All done!");
         }
     }
