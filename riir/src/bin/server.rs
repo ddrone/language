@@ -92,14 +92,22 @@ struct CardsResponse {
     reviews: Vec<CardReview>,
 }
 
-fn cards_to_review() -> CardsResponse {
-    let cards = parse_cards();
-    let (reviews_raw, _) = get_reviews(&cards);
-
+fn cards_hash(cards: &Vec<Card>) -> String {
     let mut hasher = Sha256::new();
     for card in &cards {
         hasher.write(card.text.as_ref()).unwrap();
+        for review in &card.review {
+            hasher.write(&[review.bucket]).unwrap();
+            hasher.write(&review.last_reviewed.to_string().as_bytes()).unwrap();
+        }
     }
+
+    format!("{:X}", hasher.finalize())
+}
+
+fn cards_to_review() -> CardsResponse {
+    let cards = parse_cards();
+    let (reviews_raw, _) = get_reviews(&cards);
 
     let mut reviews = Vec::new();
     for (card_index, deletion_index) in reviews_raw {
@@ -132,7 +140,7 @@ fn cards_to_review() -> CardsResponse {
     }
 
     CardsResponse {
-        file_hash: format!("{:X}", hasher.finalize()),
+        file_hash: cards_hash(&cards),
         cards,
         reviews,
     }
