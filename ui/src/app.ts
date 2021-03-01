@@ -7,6 +7,7 @@ interface CardReview {
     deletion_index: number;
     rendered: string;
     answer: string;
+    source: string;
 }
 
 interface CardsResponse {
@@ -21,12 +22,14 @@ interface ReviewState {
     currentCard: number;
     loaded: boolean;
     response: CardsResponse;
+    showSource: boolean;
 }
 
 const Review: m.Component<ReviewAttrs, ReviewState> = {
     oninit ({state}) {
         state.currentCard = 0;
         state.loaded = false;
+        state.showSource = false;
         m.request({
             method: "GET",
             url: "http://localhost:31337/review"
@@ -44,14 +47,25 @@ const Review: m.Component<ReviewAttrs, ReviewState> = {
         else if (state.currentCard < state.response.reviews.length) {
             let card = state.response.reviews[state.currentCard];
             return m("div", [
-                // TODO: inline it as HTML
-                m("p", card.rendered),
+                m("p", m.trust(card.rendered)),
+                // TODO: similar pattern should be in a helper library
+                m("div", !state.showSource ? [] : [
+                    m("pre", card.source)
+                ]),
                 m("textarea"),
                 m("button", {
                     onclick: () => {
                         state.currentCard++;
+                        state.showSource = false;
                     }
-                }, "Check")
+                }, "Check"),
+                m("div", state.showSource ? [] : [
+                    m("button", {
+                        onclick: () => {
+                            state.showSource = true;
+                        }
+                    }, "Show source"),
+                ]),
             ]);
         }
         else {
