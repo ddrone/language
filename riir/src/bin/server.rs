@@ -12,7 +12,7 @@ use warp::Filter;
 
 fn generate_link_list() -> String {
     let mut result = String::new();
-    result.push_str("<ul>");
+    result.push_str(r#"<a href="static/index.html">Start review</a><ul>"#);
 
     for entry in glob("**/*.md").unwrap() {
         let file_path = entry.unwrap();
@@ -177,14 +177,14 @@ fn apply_reviews(request: ApplyReviewRequest) -> ApplyReviewResponse {
 async fn main() {
     let root_handler = warp::path::end().map(|| warp::reply::html(generate_link_list()));
     let read_handler = warp::path!("read" / String).map(|name| warp::reply::html(view_note(name)));
-    let cards_handler = warp::path("review")
-        .map(|| warp::reply::json(&cards_to_review()))
-        .with(warp::cors().allow_any_origin().build());
+    let cards_handler = warp::path("review").map(|| warp::reply::json(&cards_to_review()));
+    // TODO: make the path to be a parameter maybe
+    let static_handler =
+        warp::path("static").and(warp::fs::dir("/home/ddrone/Projects/language/ui"));
     let apply_review_handler = warp::post()
         .and(warp::path("apply_review"))
         .and(warp::body::json())
-        .map(|request| warp::reply::json(&apply_reviews(request)))
-        .with(warp::cors().allow_any_origin().build());
+        .map(|request| warp::reply::json(&apply_reviews(request)));
 
     println!("Should start serving I think");
 
@@ -198,7 +198,7 @@ async fn main() {
             .or(read_handler)
             .or(cards_handler)
             .or(apply_review_handler)
-            .with(warp::cors().allow_any_origin().build()),
+            .or(static_handler),
     )
     .run(([127, 0, 0, 1], 31337))
     .await;
