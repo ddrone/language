@@ -3,6 +3,8 @@
     <head>
         <title>UI goes here</title>
         <meta charset="utf-8" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+        <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
     </head>
     <body>
         <script src="https://unpkg.com/mithril/mithril.js"></script>
@@ -12,6 +14,14 @@
             function require() {
                 return savedMithril;
             }
+
+            let loadMath = () => {
+                let nodes = document.querySelectorAll("span.math.inline");
+                for (let i = 0; i < nodes.length; i++) {
+                    let node = nodes[i];
+                    katex.render(node.innerText, node);
+                }
+            };
         </script>
         <script src="build/app.js"></script>
     </body>
