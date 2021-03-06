@@ -12,6 +12,7 @@ pub mod cloze;
 pub mod pdf_annotations;
 pub mod render_cards;
 pub mod review_cards;
+mod lexer;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ReviewInfo {

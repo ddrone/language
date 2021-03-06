@@ -40,6 +40,8 @@ interface ReviewState {
     reviewSent: boolean;
 }
 
+declare function loadMath();
+
 const Review: m.Component<ReviewAttrs, ReviewState> = {
     oninit ({state}) {
         state.currentCard = 0;

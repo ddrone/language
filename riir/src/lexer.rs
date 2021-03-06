@@ -2,6 +2,12 @@ use regex::Regex;
 
 pub fn to_chunks(source: &str) -> Vec<String> {
     let regex = Regex::new(r"(?:\{\{.*?}})|(?:\$.*?\$)").unwrap();
+    let regex_delim = Regex::new(r"\{\{|}}|\$").unwrap();
+
+    for chunk in regex_delim.find_iter(source) {
+        println!("{:?}", chunk.as_str())
+    }
+
     regex.split(source).map(|s| s.to_string()).collect()
 }
 
