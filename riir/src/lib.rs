@@ -13,6 +13,7 @@ pub mod pdf_annotations;
 pub mod render_cards;
 pub mod review_cards;
 mod lexer;
+mod latex_reader;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ReviewInfo {
