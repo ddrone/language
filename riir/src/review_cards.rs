@@ -51,7 +51,7 @@ fn review_card(card: &Cloze, close_id: usize) -> bool {
     }
     println!("Exact match not detected.");
     println!("Expected: {}", back);
-    println!("Actual: {}", input);
+    println!("Actual:   {}", input);
     print!("Did you get it right? ");
     yes_no()
 }
