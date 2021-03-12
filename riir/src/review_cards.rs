@@ -19,6 +19,7 @@ fn yes_no() -> bool {
         } else if input == "no\n" {
             return false;
         } else {
+            input.clear();
             print!("Did not get expected answer, enter 'yes' or 'no': ");
         }
     }
