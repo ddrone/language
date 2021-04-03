@@ -99,7 +99,7 @@ pub fn get_reviews(cards: &Vec<Card>) -> (Vec<(usize, usize)>, usize) {
                 .checked_add_signed(Duration::days(days_to_review as i64))
                 .unwrap();
             println!("Next review: {}", next_review);
-            if next_review < time {
+            if next_review < time && review.bucket < 8 {
                 reviews.push((i, j));
             }
         }
