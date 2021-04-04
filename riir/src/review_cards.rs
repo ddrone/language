@@ -73,13 +73,10 @@ pub fn parse_cards() -> Vec<Card> {
                         match index.get(&card.text) {
                             None => cards.push(card),
                             Some(old_card) => {
-                                println!("Ignoring {}, already exists", &card.text);
                                 cards.push(old_card.clone())
                             }
                         }
                     }
-                } else {
-                    println!("Ignoring {:?}, not markdown file, ext = {:?}", entry, ext);
                 }
             }
         }
@@ -98,7 +95,6 @@ pub fn get_reviews(cards: &Vec<Card>) -> (Vec<(usize, usize)>, usize) {
                 .last_reviewed
                 .checked_add_signed(Duration::days(days_to_review as i64))
                 .unwrap();
-            println!("Next review: {}", next_review);
             if next_review < time && review.bucket < 8 {
                 reviews.push((i, j));
             }
