@@ -1,6 +1,8 @@
 import glob
 import os
 import html
+import subprocess
+from pathlib import Path
 
 files = glob.glob("*.md")
 files.sort(key=lambda f: -os.stat(f).st_mtime)
@@ -27,11 +29,4 @@ document += '</div>'
 with open('index.html', 'w') as f:
     f.write(document)
 
-import http.server
-import socketserver
-import subprocess
-
-with socketserver.TCPServer(("", 0), http.server.SimpleHTTPRequestHandler) as httpd:
-    port = httpd.socket.getsockname()[1]
-    subprocess.run(["xdg-open", f"http://localhost:{port}"])
-    httpd.serve_forever()
+subprocess.run(["xdg-open", f'file:///{Path("index.html").absolute()}'])
