@@ -29,7 +29,7 @@ type ParseError = String
 -- TODO: chase down the origin for this type, I've learned it from Edward Kmett's stream
 -- TODO: why not add start to a signature? Going to lead to clunkier primitives,
 --       but would make it possible for easy error reporting
-newtype Parser a = Parser { runParser :: String -> Either ParseError (Int, a) }
+newtype Parser a = Parser { runParser :: [String] -> Either ParseError (Int, a) }
 
 instance Functor Parser where
   -- Congratulations on writing code even you can't understand!
