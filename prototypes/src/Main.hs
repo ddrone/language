@@ -1,5 +1,10 @@
 module Main where
 
+import Control.Arrow
+import Control.Monad
+import Data.Char
+import Data.Either
+
 data Ty
   = TySymbol
   | Arr Ty Ty
@@ -16,6 +21,28 @@ data Exp r
 
 newtype Untyped = Untyped { getUntyped :: Exp Untyped }
   deriving (Show)
+
+type ParseError = String
+
+-- Why not implement parsing combinators again for the n-th time?
+-- TODO: chase down the reference for this type, I've learned it from Edward Kmett's stream
+-- TODO: why not add start to a signature? Going to lead to clunkier primitives,
+--       but would make it possible for easy error reporting
+newtype Parser a = Parser { runParser :: String -> Either ParseError (Int, a) }
+
+instance Functor Parser where
+  -- Congratulations on writing code even you can't understand!
+  -- Which Functor instance is used in the second occurrence of fmap? Who knows!
+  fmap f (Parser p) = Parser (fmap (second f) . p)
+
+instance Applicative Parser where
+  pure x = Parser (const $ pure (0, x))
+  (<*>) = ap
+
+instance Monad Parser where
+  px >>= f = Parser $ \input -> do
+    (x, a) <- runParser px input
+    runParser (f a) (drop x input)
 
 data Typed = Typed
   { exprType :: Ty
