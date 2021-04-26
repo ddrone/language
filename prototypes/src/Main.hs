@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 module Main where
 
 import Control.Arrow
@@ -5,6 +6,8 @@ import Control.Applicative
 import Control.Monad
 import Data.Char
 import Data.Either
+import Data.Foldable
+import Data.Functor
 
 data Ty
   = TySymbol
@@ -54,6 +57,50 @@ instance Alternative Parser where
     case runParser pa input of
       Left _ -> runParser pb input
       result@(Right _) -> result
+
+expect :: String -> Parser ()
+expect token = Parser $ \case
+  [] -> Left $ concat ["expected ", token, " got EOF"]
+  (t : ts) | t == token -> pure (1, ())
+  (t : ts) -> Left $ concat ["expected ", token, " got ", t]
+
+eat :: Parser String
+eat = Parser $ \case
+  [] -> Left "unexpected EOF"
+  (t : ts) -> pure (1, t)
+
+leaf :: Parser Untyped
+leaf = asum
+  [ expect "*" $> Untyped (Symbol "*")
+  -- TODO: the following will eat bracket as well, maybe do something about it
+  , Untyped . Var <$> eat
+  ]
+
+typeParser :: Parser Ty
+typeParser = asum
+  [ expect "*" $> TySymbol
+  , do expect "("
+       t1 <- typeParser
+       expect "->"
+       t2 <- typeParser
+       expect ")"
+       pure (Arr t1 t2)
+  ]
+
+parseExpr :: Parser Untyped
+parseExpr = undefined
+
+compound :: Parser Untyped
+compound = asum
+  [ do expect "fun"
+       name <- eat
+       ty <- typeParser
+       body <- parseExpr
+       pure (Untyped $ Lam name ty body)
+  , do fun <- parseExpr
+       arg <- parseExpr
+       pure (Untyped $ App fun arg)
+  ]
 
 data Typed = Typed
   { exprType :: Ty
