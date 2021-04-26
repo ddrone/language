@@ -162,5 +162,5 @@ testInput input = do
 main :: IO ()
 main = do
   testInput "( fun x * x )"
-  testInput "x"
-  testInput "*"
+  testInput "( fun x * ( f x ) )"
+  testInput "( fun f ( * -> * ) ( fun x * ( f x ) ) )"
