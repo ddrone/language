@@ -88,7 +88,13 @@ typeParser = asum
   ]
 
 parseExpr :: Parser Untyped
-parseExpr = undefined
+parseExpr = asum
+  [ do expect "("
+       e <- compound
+       expect ")"
+       pure e
+  , leaf
+  ]
 
 compound :: Parser Untyped
 compound = asum
@@ -101,6 +107,14 @@ compound = asum
        arg <- parseExpr
        pure (Untyped $ App fun arg)
   ]
+
+parse :: Parser a -> String -> Either ParseError a
+parse p input = case runParser p (words input) of
+  Left err -> Left err
+  Right (x, a) ->
+    if x == length (words input)
+      then Right a
+      else Left $ concat ["consumed ", show x, " out of ", show (length input), " tokens"]
 
 data Typed = Typed
   { exprType :: Ty
@@ -133,6 +147,20 @@ typecheck env e = case getUntyped e of
     typedBody <- typecheck ((var, ty) : env) body
     pure (Typed (Arr ty (exprType typedBody)) (Lam var ty typedBody))
 
+testInput :: String -> IO ()
+testInput input = do
+  let parsed = parse parseExpr input
+  case parsed of
+    Left err -> putStrLn err
+    Right r -> do
+      print r
+      let typed = typecheck [] r
+      case typed of
+        Left err -> putStrLn err
+        Right t -> print t
+
 main :: IO ()
 main = do
-  putStrLn "hello world"
+  testInput "( fun x * x )"
+  testInput "x"
+  testInput "*"
