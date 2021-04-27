@@ -23,7 +23,16 @@ data Exp r
   | App r r
   deriving (Show)
 
-newtype Untyped = Untyped { getUntyped :: Exp Untyped }
+data Position = Position
+  { startPos :: Int
+  , endPos :: Int
+  }
+  deriving (Show)
+
+data Untyped = Untyped
+  { getUntyped :: Exp Untyped
+  , untypedPos :: Position
+  }
   deriving (Show)
 
 type ParseError = String
@@ -73,9 +82,11 @@ eat = Parser $ \case
 
 leaf :: Parser Untyped
 leaf = asum
-  [ expect "*" $> Untyped (Symbol "*")
+  [ do start <- expect "*"
+       pure (Untyped (Symbol "*") (Position start (start + 1)))
   -- TODO: the following will eat bracket as well, maybe do something about it
-  , Untyped . Var . snd <$> eat
+  , do (start, v) <- eat
+       pure (Untyped (Var v) (Position start (start + length v)))
   ]
 
 typeParser :: Parser Ty
@@ -91,21 +102,21 @@ typeParser = asum
 
 parseExpr :: Parser Untyped
 parseExpr = asum
-  [ do expect "("
+  [ do start <- expect "("
        e <- compound
-       expect ")"
-       pure e
+       beforeEnd <- expect ")"
+       pure (Untyped e (Position start (beforeEnd + 1)))
   , leaf
   ]
 
-compound :: Parser Untyped
+compound :: Parser (Exp Untyped)
 compound = asum
   [ do expect "fun"
        name <- snd <$> eat
        ty <- typeParser
-       Untyped . Lam name ty <$> parseExpr
+       Lam name ty <$> parseExpr
   , do fun <- parseExpr
-       Untyped . App fun <$> parseExpr
+       App fun <$> parseExpr
   ]
 
 parse :: Parser a -> String -> Either ParseError a
