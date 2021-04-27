@@ -147,6 +147,7 @@ typecheck env e = case getUntyped e of
 
 testInput :: String -> IO ()
 testInput input = do
+  print $ indexedWords 0 input
   let parsed = parse parseExpr input
   case parsed of
     Left err -> putStrLn err
@@ -156,6 +157,14 @@ testInput input = do
       case typed of
         Left err -> putStrLn err
         Right t -> print t
+
+indexedWords :: Int -> String -> [(Int, String)]
+indexedWords n = \case
+  [] -> []
+  c : rest | isSpace c -> indexedWords (n + 1) rest
+  input ->
+    let (word, rest) = break isSpace input in
+      (n, word) : indexedWords (n + length word) rest
 
 main :: IO ()
 main = do
