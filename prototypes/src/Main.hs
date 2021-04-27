@@ -101,11 +101,9 @@ compound = asum
   [ do expect "fun"
        name <- eat
        ty <- typeParser
-       body <- parseExpr
-       pure (Untyped $ Lam name ty body)
+       Untyped . Lam name ty <$> parseExpr
   , do fun <- parseExpr
-       arg <- parseExpr
-       pure (Untyped $ App fun arg)
+       Untyped . App fun <$> parseExpr
   ]
 
 parse :: Parser a -> String -> Either ParseError a
