@@ -60,22 +60,22 @@ instance Alternative Parser where
       Left _ -> runParser pb input
       result@(Right _) -> result
 
-expect :: String -> Parser ()
+expect :: String -> Parser Int
 expect token = Parser $ \case
   [] -> Left $ concat ["expected ", token, " got EOF"]
-  (t : ts) | snd t == token -> pure (1, ())
+  ((pos, t) : ts) | t == token -> pure (1, pos)
   (t : ts) -> Left $ concat ["expected ", token, " got ", snd t]
 
-eat :: Parser String
+eat :: Parser (Int, String)
 eat = Parser $ \case
   [] -> Left "unexpected EOF"
-  (t : ts) -> pure (1, snd t)
+  (t : ts) -> pure (1, t)
 
 leaf :: Parser Untyped
 leaf = asum
   [ expect "*" $> Untyped (Symbol "*")
   -- TODO: the following will eat bracket as well, maybe do something about it
-  , Untyped . Var <$> eat
+  , Untyped . Var . snd <$> eat
   ]
 
 typeParser :: Parser Ty
@@ -101,7 +101,7 @@ parseExpr = asum
 compound :: Parser Untyped
 compound = asum
   [ do expect "fun"
-       name <- eat
+       name <- snd <$> eat
        ty <- typeParser
        Untyped . Lam name ty <$> parseExpr
   , do fun <- parseExpr
