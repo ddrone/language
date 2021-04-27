@@ -132,6 +132,7 @@ parse p input =
 data Typed = Typed
   { exprType :: Ty
   , expr :: Exp Typed
+  , typedPos :: Position
   }
   deriving (Show)
 
@@ -140,25 +141,27 @@ type TypeError = String
 type Env = [(String, Ty)]
 
 typecheck :: Env -> Untyped -> Either TypeError Typed
-typecheck env e = case getUntyped e of
-  Symbol s -> pure (Typed TySymbol (Symbol s))
-  Var v -> case lookup v env of
-    -- TODO: some kind of string interpolation?
-    Nothing -> Left $ concat ["variable ", v, " not found"]
-    Just ty -> pure (Typed ty (Var v))
-  App eFun eArg -> do
-    typedFun <- typecheck env eFun
-    typedArg <- typecheck env eArg
-    case exprType typedFun of
-      Arr arg result ->
-        if arg == exprType typedArg
-          then pure (Typed result (App typedFun typedArg))
-          -- TODO: add an ability to point to node of a tree that causes type error
-          else Left "wrong function application"
-      _ -> Left "trying to apply non-function"
-  Lam var ty body -> do
-    typedBody <- typecheck ((var, ty) : env) body
-    pure (Typed (Arr ty (exprType typedBody)) (Lam var ty typedBody))
+typecheck env e =
+  let pos = untypedPos e in
+  case getUntyped e of
+    Symbol s -> pure (Typed TySymbol (Symbol s) pos)
+    Var v -> case lookup v env of
+      -- TODO: some kind of string interpolation?
+      Nothing -> Left $ concat ["variable ", v, " not found"]
+      Just ty -> pure (Typed ty (Var v) pos)
+    App eFun eArg -> do
+      typedFun <- typecheck env eFun
+      typedArg <- typecheck env eArg
+      case exprType typedFun of
+        Arr arg result ->
+          if arg == exprType typedArg
+            then pure (Typed result (App typedFun typedArg) pos)
+            -- TODO: add an ability to point to node of a tree that causes type error
+            else Left "wrong function application"
+        _ -> Left "trying to apply non-function"
+    Lam var ty body -> do
+      typedBody <- typecheck ((var, ty) : env) body
+      pure (Typed (Arr ty (exprType typedBody)) (Lam var ty typedBody) pos)
 
 testInput :: String -> IO ()
 testInput input = do
