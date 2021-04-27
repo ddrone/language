@@ -7,11 +7,13 @@ import Control.Arrow
 import Control.Applicative
 import Control.Monad
 import Data.Aeson
+import Data.Aeson.Text
 import Data.Char
 import Data.Either
 import Data.Foldable
 import Data.Functor
 import GHC.Generics
+import qualified Data.Text.Lazy.IO as TextIO
 
 data Ty
   = TySymbol
@@ -202,7 +204,7 @@ testInput input = do
         Right t -> do
           print t
           let typeTree = toTypeTree t
-          print typeTree
+          TextIO.writeFile "out.json" (encodeToLazyText typeTree)
 
 indexedWords :: Int -> String -> [(Int, String)]
 indexedWords n = \case
