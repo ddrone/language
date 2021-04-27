@@ -28,11 +28,13 @@ newtype Untyped = Untyped { getUntyped :: Exp Untyped }
 
 type ParseError = String
 
+type Token = (Int, String)
+
 -- Why not implement parsing combinators again for the n-th time?
 -- TODO: chase down the origin for this type, I've learned it from Edward Kmett's stream
 -- TODO: why not add start to a signature? Going to lead to clunkier primitives,
 --       but would make it possible for easy error reporting
-newtype Parser a = Parser { runParser :: [String] -> Either ParseError (Int, a) }
+newtype Parser a = Parser { runParser :: [Token] -> Either ParseError (Int, a) }
 
 instance Functor Parser where
   -- Congratulations on writing code even you can't understand!
@@ -61,13 +63,13 @@ instance Alternative Parser where
 expect :: String -> Parser ()
 expect token = Parser $ \case
   [] -> Left $ concat ["expected ", token, " got EOF"]
-  (t : ts) | t == token -> pure (1, ())
-  (t : ts) -> Left $ concat ["expected ", token, " got ", t]
+  (t : ts) | snd t == token -> pure (1, ())
+  (t : ts) -> Left $ concat ["expected ", token, " got ", snd t]
 
 eat :: Parser String
 eat = Parser $ \case
   [] -> Left "unexpected EOF"
-  (t : ts) -> pure (1, t)
+  (t : ts) -> pure (1, snd t)
 
 leaf :: Parser Untyped
 leaf = asum
@@ -107,12 +109,14 @@ compound = asum
   ]
 
 parse :: Parser a -> String -> Either ParseError a
-parse p input = case runParser p (words input) of
-  Left err -> Left err
-  Right (x, a) ->
-    if x == length (words input)
-      then Right a
-      else Left $ concat ["consumed ", show x, " out of ", show (length input), " tokens"]
+parse p input =
+  let tokens = indexedWords 0 input in
+  case runParser p tokens of
+    Left err -> Left err
+    Right (x, a) ->
+      if x == length tokens
+        then Right a
+        else Left $ concat ["consumed ", show x, " out of ", show (length input), " tokens"]
 
 data Typed = Typed
   { exprType :: Ty
