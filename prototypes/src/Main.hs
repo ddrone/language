@@ -1,18 +1,27 @@
+{-# LANGUAGE DeriveFoldable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE LambdaCase #-}
 module Main where
 
 import Control.Arrow
 import Control.Applicative
 import Control.Monad
+import Data.Aeson
 import Data.Char
 import Data.Either
 import Data.Foldable
 import Data.Functor
+import GHC.Generics
 
 data Ty
   = TySymbol
   | Arr Ty Ty
   deriving (Show, Eq)
+
+renderType :: Ty -> String
+renderType = \case
+  TySymbol -> "*"
+  Arr t1 t2 -> concat ["(", renderType t1, " -> ", renderType t2, ")"]
 
 type Variable = String
 
@@ -21,13 +30,15 @@ data Exp r
   | Var Variable
   | Lam Variable Ty r
   | App r r
-  deriving (Show)
+  deriving (Show, Foldable)
 
 data Position = Position
   { startPos :: Int
   , endPos :: Int
   }
-  deriving (Show)
+  deriving (Show, Generic)
+
+instance ToJSON Position where
 
 data Untyped = Untyped
   { getUntyped :: Exp Untyped
@@ -163,6 +174,20 @@ typecheck env e =
       typedBody <- typecheck ((var, ty) : env) body
       pure (Typed (Arr ty (exprType typedBody)) (Lam var ty typedBody) pos)
 
+data TypeTree = TypeTree
+  { range :: Position
+  , treeType :: String
+  , children :: [TypeTree]
+  }
+  deriving (Generic, Show)
+
+instance ToJSON TypeTree where
+
+toTypeTree :: Typed -> TypeTree
+toTypeTree tree =
+  let children = map toTypeTree (toList (expr tree)) in
+  TypeTree (typedPos tree) (renderType (exprType tree)) children
+
 testInput :: String -> IO ()
 testInput input = do
   print $ indexedWords 0 input
@@ -174,7 +199,7 @@ testInput input = do
       let typed = typecheck [] r
       case typed of
         Left err -> putStrLn err
-        Right t -> print t
+        Right t -> print t >> print (toTypeTree t)
 
 indexedWords :: Int -> String -> [(Int, String)]
 indexedWords n = \case
