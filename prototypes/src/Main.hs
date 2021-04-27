@@ -199,7 +199,10 @@ testInput input = do
       let typed = typecheck [] r
       case typed of
         Left err -> putStrLn err
-        Right t -> print t >> print (toTypeTree t)
+        Right t -> do
+          print t
+          let typeTree = toTypeTree t
+          print typeTree
 
 indexedWords :: Int -> String -> [(Int, String)]
 indexedWords n = \case
@@ -211,6 +214,5 @@ indexedWords n = \case
 
 main :: IO ()
 main = do
-  testInput "( fun x * x )"
-  testInput "( fun x * ( f x ) )"
-  testInput "( fun f ( * -> * ) ( fun x * ( f x ) ) )"
+  input <- readFile "input.lan"
+  testInput input
