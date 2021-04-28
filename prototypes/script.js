@@ -20,7 +20,7 @@ class Renderer {
     constructor(tree, text) {
         this.tree = tree;
         this.text = text;
-        this.highlightTarget = el('div');
+        this.highlightTarget = el('pre');
     }
 
     render() {
