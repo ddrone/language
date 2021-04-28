@@ -204,7 +204,7 @@ testInput input = do
         Right t -> do
           print t
           let typeTree = toTypeTree t
-          TextIO.writeFile "out.json" (encodeToLazyText typeTree)
+          TextIO.writeFile "output/tree.json" (encodeToLazyText typeTree)
 
 indexedWords :: Int -> String -> [(Int, String)]
 indexedWords n = \case
