@@ -9,10 +9,8 @@ import Control.Monad
 import Data.Aeson
 import Data.Aeson.Text
 import Data.Char
-import Data.Either
 import Data.Foldable
 import Data.Functor
-import Data.List
 import GHC.Generics
 import qualified Data.Text.Lazy.IO as TextIO
 
