@@ -1,1 +1,1 @@
-( fun f ( * -> * ) ( fun x * ( f x ) ) )
+(fun f (* -> *) (fun x * (f x)))

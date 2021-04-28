@@ -59,8 +59,18 @@ class Renderer {
 }
 
 async function render() {
-    let treeReq = await fetch('./output/tree.json');
-    let textReq = await fetch('./input.lan');
+    let headers = new Headers();
+    headers.append('pragma', 'no-cache');
+    headers.append('cache-control', 'no-cache');
+
+    let treeReq = await fetch('./output/tree.json', {
+        method: 'GET',
+        headers
+    });
+    let textReq = await fetch('./input.lan', {
+        method: 'GET',
+        headers
+    });
     let tree = await treeReq.json();
     let textResult = await textReq.text();
     let container = document.getElementById('container');

@@ -12,6 +12,7 @@ import Data.Char
 import Data.Either
 import Data.Foldable
 import Data.Functor
+import Data.List
 import GHC.Generics
 import qualified Data.Text.Lazy.IO as TextIO
 
@@ -206,12 +207,20 @@ testInput input = do
           let typeTree = toTypeTree t
           TextIO.writeFile "output/tree.json" (encodeToLazyText typeTree)
 
+charLexemes :: [Char]
+charLexemes = "()"
+
+eatToken :: String -> (String, String)
+eatToken = \case
+  c : rest | c `elem` charLexemes -> ([c], rest)
+  input -> break (\ c -> isSpace c || c `elem` charLexemes) input
+
 indexedWords :: Int -> String -> [(Int, String)]
 indexedWords n = \case
   [] -> []
   c : rest | isSpace c -> indexedWords (n + 1) rest
   input ->
-    let (word, rest) = break isSpace input in
+    let (word, rest) = eatToken input in
       (n, word) : indexedWords (n + length word) rest
 
 main :: IO ()
