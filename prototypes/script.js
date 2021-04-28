@@ -20,6 +20,14 @@ class Renderer {
     constructor(tree, text) {
         this.tree = tree;
         this.text = text;
+        this.highlightTarget = el('div');
+    }
+
+    render() {
+        return el('div',
+            this.renderTree(this.tree),
+            this.highlightTarget
+        );
     }
 
     renderTree(t) {
@@ -28,9 +36,25 @@ class Renderer {
             return this.renderTree(e);
         });
 
-        let result = el('div', text(t.treeType), ...children);
+        let button = el('button');
+        button.innerText = t.treeType;
+        button.addEventListener('click', () => {
+            this.updateRange(t.range);
+        });
+
+        let result = el('div', button, ...children);
         result.classList.add('indent');
         return result;
+    }
+
+    updateRange(range) {
+        let first = text(this.text.substring(0, range.startPos));
+        let second = text(this.text.substring(range.startPos, range.endPos));
+        second.classList.add('highlight');
+        let third = text(this.text.substring(range.endPos));
+
+        this.highlightTarget.innerHTML = '';
+        this.highlightTarget.appendChild(el('div', first, second, third));
     }
 }
 
@@ -42,7 +66,7 @@ async function render() {
     let container = document.getElementById('container');
 
     let renderer = new Renderer(tree, textResult);
-    container.appendChild(renderer.renderTree(tree));
+    container.appendChild(renderer.render());
 
     console.log(tree);
     console.log(textResult);
