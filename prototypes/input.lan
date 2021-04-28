@@ -1,5 +1,5 @@
-(fun p (*, *) p)
+(fun p ((* -> *), *) (pair p p))
 
 // Everything after double slashes is a comment until EOF
-(fun p (* -> *, *) (pair ((fst p) (snd p)) p))
+(fun p (*, *) p)
 (fun f (* -> *) (fun x * (f x)))

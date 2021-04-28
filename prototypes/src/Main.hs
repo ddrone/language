@@ -191,6 +191,10 @@ typecheck env e =
     Lam var ty body -> do
       typedBody <- typecheck ((var, ty) : env) body
       pure (Typed (Arr ty (exprType typedBody)) (Lam var ty typedBody) pos)
+    Pair e1 e2 -> do
+      t1 <- typecheck env e1
+      t2 <- typecheck env e2
+      pure (Typed (TyPair (exprType t1) (exprType t2)) (Pair t1 t2) pos)
 
 data TypeTree = TypeTree
   { range :: Position
