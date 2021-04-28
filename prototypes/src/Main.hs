@@ -16,6 +16,7 @@ import qualified Data.Text.Lazy.IO as TextIO
 
 data Ty
   = TySymbol
+  | TyPair Ty Ty
   | Arr Ty Ty
   deriving (Show, Eq)
 
@@ -23,6 +24,7 @@ renderType :: Ty -> String
 renderType = \case
   TySymbol -> "*"
   Arr t1 t2 -> concat ["(", renderType t1, " -> ", renderType t2, ")"]
+  TyPair t1 t2 -> concat ["(", renderType t1, ", ", renderType t2, ")"]
 
 type Variable = String
 
@@ -30,6 +32,9 @@ data Exp r
   = Symbol String
   | Var Variable
   | Lam Variable Ty r
+  | Pair r r
+  | Fst r
+  | Snd r
   | App r r
   deriving (Show, Foldable)
 
@@ -110,6 +115,12 @@ typeParser = asum
        t2 <- typeParser
        expect ")"
        pure (Arr t1 t2)
+  , do expect "("
+       t1 <- typeParser
+       expect ","
+       t2 <- typeParser
+       expect ")"
+       pure (TyPair t1 t2)
   ]
 
 parseExpr :: Parser Untyped
@@ -127,6 +138,12 @@ compound = asum
        name <- snd <$> eat
        ty <- typeParser
        Lam name ty <$> parseExpr
+  , do expect "pair"
+       Pair <$> parseExpr <*> parseExpr
+  , do expect "fst"
+       Fst <$> parseExpr
+  , do expect "snd"
+       Snd <$> parseExpr
   , do fun <- parseExpr
        App fun <$> parseExpr
   ]
@@ -206,7 +223,7 @@ testInput input = do
           TextIO.writeFile "output/tree.json" (encodeToLazyText typeTree)
 
 charLexemes :: [Char]
-charLexemes = "()"
+charLexemes = "(),"
 
 eatToken :: String -> (String, String)
 eatToken = \case
