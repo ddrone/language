@@ -195,6 +195,16 @@ typecheck env e =
       t1 <- typecheck env e1
       t2 <- typecheck env e2
       pure (Typed (TyPair (exprType t1) (exprType t2)) (Pair t1 t2) pos)
+    Fst e -> do
+      t <- typecheck env e
+      case exprType t of
+        TyPair t1 _ -> pure (Typed t1 (Fst t) pos)
+        _ -> Left "trying to get first argument of non-pair"
+    Snd e -> do
+      t <- typecheck env e
+      case exprType t of
+        TyPair _ t2 -> pure (Typed t2 (Snd t) pos)
+        _ -> Left "trying to get second argument of non-pair"
 
 data TypeTree = TypeTree
   { range :: Position
