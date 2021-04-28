@@ -216,6 +216,10 @@ eatToken = \case
 tokenize :: Int -> String -> [(Int, String)]
 tokenize n = \case
   [] -> []
+  -- This is actually a nice hack for prototypes: can keep whatever after a
+  -- prefix in the file without having to worry about proper lexical analysis
+  -- of comments.
+  '/' : '/' : _ -> []
   c : rest | isSpace c -> tokenize (n + 1) rest
   input ->
     let (word, rest) = eatToken input in

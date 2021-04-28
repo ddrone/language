@@ -1,1 +1,3 @@
 (fun f (* -> *) (fun x * (f x)))
+
+// Everything after double slashes is a comment until EOF
