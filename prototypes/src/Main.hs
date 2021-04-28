@@ -135,7 +135,7 @@ compound = asum
 
 parse :: Parser a -> String -> Either ParseError a
 parse p input =
-  let tokens = indexedWords 0 input in
+  let tokens = tokenize 0 input in
   case runParser p tokens of
     Left err -> Left err
     Right (x, a) ->
@@ -193,7 +193,7 @@ toTypeTree tree =
 
 testInput :: String -> IO ()
 testInput input = do
-  print $ indexedWords 0 input
+  print $ tokenize 0 input
   let parsed = parse parseExpr input
   case parsed of
     Left err -> putStrLn err
@@ -215,13 +215,13 @@ eatToken = \case
   c : rest | c `elem` charLexemes -> ([c], rest)
   input -> break (\ c -> isSpace c || c `elem` charLexemes) input
 
-indexedWords :: Int -> String -> [(Int, String)]
-indexedWords n = \case
+tokenize :: Int -> String -> [(Int, String)]
+tokenize n = \case
   [] -> []
-  c : rest | isSpace c -> indexedWords (n + 1) rest
+  c : rest | isSpace c -> tokenize (n + 1) rest
   input ->
     let (word, rest) = eatToken input in
-      (n, word) : indexedWords (n + length word) rest
+      (n, word) : tokenize (n + length word) rest
 
 main :: IO ()
 main = do
