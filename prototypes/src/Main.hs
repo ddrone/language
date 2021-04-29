@@ -251,6 +251,9 @@ tokenize n = \case
   -- prefix in the file without having to worry about proper lexical analysis
   -- of comments.
   '/' : '/' : _ -> []
+  '#' : rest ->
+    let (skip, rest') = break ('\n' ==) rest in
+    tokenize (n + length skip + 1) rest'
   c : rest | isSpace c -> tokenize (n + 1) rest
   input ->
     let (word, rest) = eatToken input in

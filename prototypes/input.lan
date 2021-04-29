@@ -1,4 +1,5 @@
 (fun p ((* -> *), *)
+  # OK, I've added proper "until end-of-line" comments
   ((fst p) (snd p)))
 
 // Everything after double slashes is a comment until EOF
