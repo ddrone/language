@@ -27,6 +27,22 @@ struct Exp {
     layer: ExpLayer<Box<Exp>>
 }
 
+fn var<S>(s: S) -> Exp where
+    S: ToString
+{
+    Exp {
+        id: 0,
+        layer: ExpLayer::Var(s.to_string())
+    }
+}
+
+fn app(e1: Exp, e2: Exp) -> Exp {
+    Exp {
+        id: 0,
+        layer: ExpLayer::App(Box::new(e1), Box::new(e2))
+    }
+}
+
 fn traverse<F>(exp: &mut Exp, f: &mut F) where
     F: FnMut(&mut Exp) -> ()
 {
@@ -53,5 +69,8 @@ fn assign_unique_ids(exp: &mut Exp) {
 }
 
 fn main() {
-    println!("Hello, world!");
+    let mut test = app(var("f"), var("x"));
+    println!("{:?}", &test);
+    assign_unique_ids(&mut test);
+    println!("{:?}", &test);
 }
