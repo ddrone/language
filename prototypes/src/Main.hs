@@ -63,8 +63,6 @@ type Token = (Int, String)
 newtype Parser a = Parser { runParser :: [Token] -> Either ParseError (Int, a) }
 
 instance Functor Parser where
-  -- Congratulations on writing code even you can't understand!
-  -- Which Functor instance is used in the second occurrence of fmap? Who knows!
   fmap f (Parser p) = Parser (fmap (second f) . p)
 
 instance Applicative Parser where
@@ -75,8 +73,6 @@ instance Monad Parser where
   px >>= f = Parser $ \input -> do
     (x, a) <- runParser px input
     (y, b) <- runParser (f a) (drop x input)
-    -- Using "WARN" might be a good idea, a la Bourbaki's "dangerous bend", but for shitty code
-    -- WARN: Is this actually correct?
     pure (x + y, b)
 
 instance Alternative Parser where
