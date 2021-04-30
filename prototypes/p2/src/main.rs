@@ -3,9 +3,9 @@ use std::borrow::{Borrow, BorrowMut};
 use expr::{Exp, ExpLayer};
 use types::{Ty, Type};
 
+mod eval;
 mod expr;
 mod types;
-mod eval;
 mod util;
 
 fn assign_unique_ids(exp: &mut Exp) {
@@ -95,17 +95,13 @@ fn typecheck(env: &mut Vec<(String, Ty)>, exp: &Exp) -> Result<Ty, String> {
 }
 
 fn main() {
-    let mut test = expr::lam(
-        "x",
-        types::uint(),
-        expr::ind(
-            expr::var("x"),
-            expr::pair(expr::uint(0), expr::uint(1)),
-            "p",
-            expr::pair(
-                expr::second(expr::var("p")),
-                expr::add(expr::first(expr::var("p")), expr::second(expr::var("p"))),
-            ),
+    let mut test = expr::ind(
+        expr::uint(10),
+        expr::pair(expr::uint(0), expr::uint(1)),
+        "p",
+        expr::pair(
+            expr::second(expr::var("p")),
+            expr::add(expr::first(expr::var("p")), expr::second(expr::var("p"))),
         ),
     );
     println!("{:?}", &test);
@@ -113,4 +109,6 @@ fn main() {
     println!("{:?}", &test);
     let ty = typecheck(&mut Vec::new(), &test);
     println!("{:?}", &ty);
+    let value = eval::eval(&mut Vec::new(), &test);
+    println!("{:?}", &value);
 }
