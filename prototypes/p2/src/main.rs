@@ -4,6 +4,7 @@ use std::borrow::{Borrow, BorrowMut};
 enum Type {
     Uint,
     Arr(Ty, Ty),
+    Pair(Ty, Ty),
 }
 type Ty = Box<Type>;
 
@@ -14,6 +15,9 @@ enum ExpLayer<R> {
     Lam { name: String, ty: Ty, body: R },
     App(R, R),
     Add(R, R),
+    Pair(R, R),
+    First(R),
+    Second(R),
 }
 
 type Id = u64;
@@ -72,6 +76,16 @@ where
             traverse(e1.borrow_mut(), f);
             traverse(e2.borrow_mut(), f);
         }
+        ExpLayer::Pair(ref mut e1, ref mut e2) => {
+            traverse(e1.borrow_mut(), f);
+            traverse(e2.borrow_mut(), f);
+        }
+        ExpLayer::First(ref mut e) => {
+            traverse(e.borrow_mut(), f);
+        }
+        ExpLayer::Second(ref mut e) => {
+            traverse(e.borrow_mut(), f);
+        }
     }
 }
 
@@ -128,6 +142,25 @@ fn typecheck(env: &mut Vec<(String, Ty)>, exp: &Exp) -> Result<Ty, String> {
                 Ok(ty1)
             } else {
                 Err("adding non-integers!".to_string())
+            }
+        }
+        ExpLayer::Pair(ref e1, ref e2) => {
+            let ty1 = typecheck(env, e1)?;
+            let ty2 = typecheck(env, e2)?;
+            Ok(Box::new(Type::Pair(ty1, ty2)))
+        }
+        ExpLayer::First(ref e) => {
+            let ty = typecheck(env, e)?;
+            match *ty {
+                Type::Pair(ty1, _) => Ok(ty1),
+                _ => Err("trying to get first of non-pair".to_string())
+            }
+        }
+        ExpLayer::Second(ref e) => {
+            let ty = typecheck(env, e)?;
+            match *ty {
+                Type::Pair(_, ty2) => Ok(ty2),
+                _ => Err("trying to get first of non-pair".to_string())
             }
         }
     }
