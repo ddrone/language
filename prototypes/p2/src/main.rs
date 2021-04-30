@@ -5,6 +5,7 @@ use types::{Ty, Type};
 
 mod eval;
 mod expr;
+mod parser;
 mod types;
 mod util;
 
@@ -111,4 +112,6 @@ fn main() {
     println!("{:?}", &ty);
     let value = eval::eval(&mut Vec::new(), &test);
     println!("{:?}", &value);
+    let tokens = parser::tokenize("(fun x)".to_string());
+    println!("{:?}", &tokens);
 }
