@@ -5,6 +5,8 @@ use types::{Ty, Type};
 
 mod expr;
 mod types;
+mod eval;
+mod util;
 
 fn assign_unique_ids(exp: &mut Exp) {
     let mut id: u64 = 0;
@@ -14,20 +16,10 @@ fn assign_unique_ids(exp: &mut Exp) {
     });
 }
 
-// TODO: figure out an idiomatic way to do this more performantly in Rust
-fn lookup(env: &Vec<(String, Ty)>, key: String) -> Result<Ty, String> {
-    for p in env.iter().rev() {
-        if p.0.eq(&key) {
-            return Ok(p.1.clone());
-        }
-    }
-    return Err(key + " not found");
-}
-
 fn typecheck(env: &mut Vec<(String, Ty)>, exp: &Exp) -> Result<Ty, String> {
     match &exp.layer {
         ExpLayer::Uint(_) => Ok(Box::new(Type::Uint)),
-        ExpLayer::Var(ref v) => lookup(&env, v.clone()),
+        ExpLayer::Var(ref v) => util::lookup(&env, v.clone()),
         ExpLayer::Lam {
             ref name,
             ref ty,
