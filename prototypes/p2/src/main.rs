@@ -2,6 +2,7 @@ use std::borrow::{Borrow, BorrowMut};
 
 use expr::{Exp, ExpLayer};
 use types::{Ty, Type};
+use crate::parser::parse;
 
 mod eval;
 mod expr;
@@ -112,6 +113,8 @@ fn main() {
     println!("{:?}", &ty);
     let value = eval::eval(&mut Vec::new(), &test);
     println!("{:?}", &value);
-    let tokens = parser::tokenize("(fun x)".to_string());
+    let tokens = parser::tokenize("(x, y)".to_string());
     println!("{:?}", &tokens);
+    let parse_result = parse(&mut (tokens.iter().peekable()));
+    println!("{:?}", &parse_result);
 }
