@@ -75,6 +75,13 @@ fn app(e1: Exp, e2: Exp) -> Exp {
     }
 }
 
+fn add(e1: Exp, e2: Exp) -> Exp {
+    Exp {
+        id: 0,
+        layer: ExpLayer::Add(Box::new(e1), Box::new(e2)),
+    }
+}
+
 fn pair(e1: Exp, e2: Exp) -> Exp {
     Exp {
         id: 0,
@@ -190,21 +197,25 @@ fn typecheck(env: &mut Vec<(String, Ty)>, exp: &Exp) -> Result<Ty, String> {
             let ty = typecheck(env, e)?;
             match *ty {
                 Type::Pair(ty1, _) => Ok(ty1),
-                _ => Err("trying to get first of non-pair".to_string())
+                _ => Err("trying to get first of non-pair".to_string()),
             }
         }
         ExpLayer::Second(ref e) => {
             let ty = typecheck(env, e)?;
             match *ty {
                 Type::Pair(_, ty2) => Ok(ty2),
-                _ => Err("trying to get first of non-pair".to_string())
+                _ => Err("trying to get first of non-pair".to_string()),
             }
         }
     }
 }
 
 fn main() {
-    let mut test = lam("p", types::pair(types::uint(), types::uint()), var("p"));
+    let mut test = lam(
+        "p",
+        types::pair(types::uint(), types::uint()),
+        add(first(var("p")), second(var("p"))),
+    );
     println!("{:?}", &test);
     assign_unique_ids(&mut test);
     println!("{:?}", &test);
