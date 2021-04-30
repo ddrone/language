@@ -1,4 +1,4 @@
-use crate::expr::{Exp, pair, var};
+use crate::expr::{first, pair, second, var, Exp};
 use std::iter::Peekable;
 
 fn is_single_token_lexeme(c: char) -> bool {
@@ -7,11 +7,10 @@ fn is_single_token_lexeme(c: char) -> bool {
 
 enum State {
     Ambient,
-    Started(usize)
+    Started(usize),
 }
 
-pub(crate) fn tokenize(input: String) -> Vec<(usize, String)>
-{
+pub(crate) fn tokenize(input: String) -> Vec<(usize, String)> {
     let mut result = Vec::new();
 
     // TODO: this probably is not going to work for non-ascii characters since enumerating chars is
@@ -21,12 +20,10 @@ pub(crate) fn tokenize(input: String) -> Vec<(usize, String)>
         match &state {
             State::Ambient => {
                 if c == ' ' || c == '\n' {
-                    continue
-                }
-                else if is_single_token_lexeme(c) {
+                    continue;
+                } else if is_single_token_lexeme(c) {
                     result.push((i, c.to_string()))
-                }
-                else {
+                } else {
                     state = State::Started(i)
                 }
             }
@@ -34,8 +31,7 @@ pub(crate) fn tokenize(input: String) -> Vec<(usize, String)>
                 if c == ' ' || c == '\n' {
                     result.push((*s, (&input[*s..i]).to_string()));
                     state = State::Ambient
-                }
-                else if is_single_token_lexeme(c) {
+                } else if is_single_token_lexeme(c) {
                     result.push((*s, (&input[*s..i]).to_string()));
                     result.push((i, c.to_string()));
                     state = State::Ambient
@@ -48,32 +44,59 @@ pub(crate) fn tokenize(input: String) -> Vec<(usize, String)>
 }
 
 pub(crate) fn parse<'a, Iter>(input: &mut Peekable<Iter>) -> Result<Exp, String>
-where Iter: Iterator<Item=&'a (usize, String)> {
+where
+    Iter: Iterator<Item = &'a (usize, String)>,
+{
     match input.next() {
         None => Err("unexpected EOF".to_string()),
         Some(s) => {
             if s.1 == "(" {
                 let mut ls = parse_list(input)?;
                 if ls.len() == 1 {
-                    Ok(ls.remove(0))
-                }
-                else if ls.len() == 2 {
+                    Ok(ls.pop().unwrap())
+                } else if ls.len() == 2 {
                     let x2 = ls.pop().unwrap();
                     let x1 = ls.pop().unwrap();
                     Ok(pair(x1, x2))
                 } else {
                     Err("wrong tuple".to_string())
                 }
-            }
-            else {
+            } else if s.1 == "first" {
+                Ok(first(parse_one(input)?))
+            } else if s.1 == "second" {
+                Ok(second(parse_one(input)?))
+            } else {
                 Ok(var(s.1.clone()))
             }
         }
     }
 }
 
+fn parse_one<'a, Iter>(input: &mut Peekable<Iter>) -> Result<Exp, String>
+where
+    Iter: Iterator<Item = &'a (usize, String)>,
+{
+    match input.next() {
+        None => Err("unexpected EOF".to_string()),
+        Some(s) => {
+            if s.1 != "(" {
+                Err("expected bracket".to_string())
+            } else {
+                let mut vec = parse_list(input)?;
+                if vec.len() == 1 {
+                    Ok(vec.pop().unwrap())
+                } else {
+                    Err("expected one element, got more".to_string())
+                }
+            }
+        }
+    }
+}
+
 fn parse_list<'a, Iter>(input: &mut Peekable<Iter>) -> Result<Vec<Exp>, String>
-where Iter: Iterator<Item=&'a (usize, String)> {
+where
+    Iter: Iterator<Item = &'a (usize, String)>,
+{
     let mut result = Vec::new();
     result.push(parse(input)?);
     loop {
@@ -82,13 +105,11 @@ where Iter: Iterator<Item=&'a (usize, String)> {
             Some(s) => {
                 if s.1 == "," {
                     result.push(parse(input)?);
-                    continue
-                }
-                else if s.1 == ")" {
-                    break
-                }
-                else {
-                    return Err("unexpected symbol".to_string())
+                    continue;
+                } else if s.1 == ")" {
+                    break;
+                } else {
+                    return Err("unexpected symbol".to_string());
                 }
             }
         }
