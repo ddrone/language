@@ -1,8 +1,8 @@
 use std::borrow::{Borrow, BorrowMut};
 
-use types_file::{Ty, Type, types};
+use types::{Ty, Type};
 
-mod types_file;
+mod types;
 
 #[derive(Debug)]
 enum ExpLayer<R> {
