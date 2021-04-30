@@ -2,14 +2,14 @@ use std::borrow::BorrowMut;
 
 #[derive(Debug)]
 enum Type {
-    Unit,
+    Uint,
     Arr(Ty, Ty),
 }
 type Ty = Box<Type>;
 
 #[derive(Debug)]
 enum ExpLayer<R> {
-    Unit,
+    Uint(u64),
     Var(String),
     Lam { name: String, ty: Type, body: R },
     App(R, R),
@@ -46,7 +46,7 @@ where
 {
     f(exp);
     match &mut exp.layer {
-        ExpLayer::Unit => {}
+        ExpLayer::Uint(_) => {}
         ExpLayer::Var(_) => {}
         ExpLayer::Lam { ref mut body, .. } => traverse(body.borrow_mut(), f),
         ExpLayer::App(ref mut fun, ref mut arg) => {
