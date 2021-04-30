@@ -28,12 +28,23 @@ pub mod types {
 enum ExpLayer<R> {
     Uint(u64),
     Var(String),
-    Lam { name: String, ty: Ty, body: R },
+    Lam {
+        name: String,
+        ty: Ty,
+        body: R,
+    },
     App(R, R),
     Add(R, R),
     Pair(R, R),
     First(R),
     Second(R),
+    Ind {
+        // TODO: is there a name for "thing you do an induction on"?
+        number: R,
+        zero_case: R,
+        succ_name: String,
+        succ_case: R,
+    },
 }
 
 type Id = u64;
@@ -42,6 +53,13 @@ type Id = u64;
 struct Exp {
     id: Id,
     layer: ExpLayer<Box<Exp>>,
+}
+
+fn uint(u: u64) -> Exp {
+    Exp {
+        id: 0,
+        layer: ExpLayer::Uint(u),
+    }
 }
 
 fn var<S>(s: S) -> Exp
@@ -64,6 +82,21 @@ where
             name: name.to_string(),
             ty,
             body: Box::new(body),
+        },
+    }
+}
+
+fn ind<S>(number: Exp, zero_case: Exp, succ_name: S, succ_case: Exp) -> Exp
+where
+    S: ToString,
+{
+    Exp {
+        id: 0,
+        layer: ExpLayer::Ind {
+            number: Box::new(number),
+            zero_case: Box::new(zero_case),
+            succ_name: succ_name.to_string(),
+            succ_case: Box::new(succ_case),
         },
     }
 }
@@ -130,6 +163,16 @@ where
         ExpLayer::Second(ref mut e) => {
             traverse(e.borrow_mut(), f);
         }
+        ExpLayer::Ind {
+            ref mut number,
+            ref mut zero_case,
+            ref mut succ_case,
+            ..
+        } => {
+            traverse(number.borrow_mut(), f);
+            traverse(zero_case.borrow_mut(), f);
+            traverse(succ_case.borrow_mut(), f);
+        }
     }
 }
 
@@ -162,6 +205,7 @@ fn typecheck(env: &mut Vec<(String, Ty)>, exp: &Exp) -> Result<Ty, String> {
         } => {
             env.push((name.clone(), ty.clone()));
             let body_ty = typecheck(env, body)?;
+            env.pop();
             let result_ty = Box::new(Type::Arr(ty.clone(), body_ty));
             Ok(result_ty)
         }
@@ -207,14 +251,37 @@ fn typecheck(env: &mut Vec<(String, Ty)>, exp: &Exp) -> Result<Ty, String> {
                 _ => Err("trying to get first of non-pair".to_string()),
             }
         }
+        ExpLayer::Ind {
+            ref number,
+            ref zero_case,
+            ref succ_name,
+            ref succ_case,
+        } => {
+            let number_ty = typecheck(env, number)?;
+            let zero_ty = typecheck(env, zero_case)?;
+            env.push((succ_name.clone(), zero_ty.clone()));
+            let succ_ty = typecheck(env, succ_case)?;
+            env.pop();
+
+            if *number_ty == Type::Uint && *zero_ty == *succ_ty {
+                Ok(zero_ty)
+            } else {
+                Err("incorrect induction".to_string())
+            }
+        }
     }
 }
 
 fn main() {
     let mut test = lam(
-        "p",
-        types::pair(types::uint(), types::uint()),
-        add(first(var("p")), second(var("p"))),
+        "x",
+        types::uint(),
+        ind(
+            var("x"),
+            pair(uint(0), uint(1)),
+            "p",
+            pair(second(var("p")), add(first(var("p")), second(var("p")))),
+        ),
     );
     println!("{:?}", &test);
     assign_unique_ids(&mut test);
