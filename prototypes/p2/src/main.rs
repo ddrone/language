@@ -6,7 +6,23 @@ enum Type {
     Arr(Ty, Ty),
     Pair(Ty, Ty),
 }
-type Ty = Box<Type>;
+pub type Ty = Box<Type>;
+
+pub mod types {
+    use crate::{Ty, Type};
+
+    pub fn uint() -> Ty {
+        Box::new(Type::Uint)
+    }
+
+    pub fn arr(fun: Ty, arg: Ty) -> Ty {
+        Box::new(Type::Arr(fun, arg))
+    }
+
+    pub fn pair(t1: Ty, t2: Ty) -> Ty {
+        Box::new(Type::Pair(t1, t2))
+    }
+}
 
 #[derive(Debug)]
 enum ExpLayer<R> {
@@ -56,6 +72,27 @@ fn app(e1: Exp, e2: Exp) -> Exp {
     Exp {
         id: 0,
         layer: ExpLayer::App(Box::new(e1), Box::new(e2)),
+    }
+}
+
+fn pair(e1: Exp, e2: Exp) -> Exp {
+    Exp {
+        id: 0,
+        layer: ExpLayer::Pair(Box::new(e1), Box::new(e2)),
+    }
+}
+
+fn first(e: Exp) -> Exp {
+    Exp {
+        id: 0,
+        layer: ExpLayer::First(Box::new(e)),
+    }
+}
+
+fn second(e: Exp) -> Exp {
+    Exp {
+        id: 0,
+        layer: ExpLayer::Second(Box::new(e)),
     }
 }
 
@@ -167,7 +204,7 @@ fn typecheck(env: &mut Vec<(String, Ty)>, exp: &Exp) -> Result<Ty, String> {
 }
 
 fn main() {
-    let mut test = lam("x", Box::new(Type::Uint), var("x"));
+    let mut test = lam("p", types::pair(types::uint(), types::uint()), var("p"));
     println!("{:?}", &test);
     assign_unique_ids(&mut test);
     println!("{:?}", &test);
