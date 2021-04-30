@@ -13,6 +13,7 @@ enum ExpLayer<R> {
     Var(String),
     Lam { name: String, ty: Ty, body: R },
     App(R, R),
+    Add(R, R),
 }
 
 type Id = u64;
@@ -67,6 +68,10 @@ where
             traverse(fun.borrow_mut(), f);
             traverse(arg.borrow_mut(), f);
         }
+        ExpLayer::Add(ref mut e1, ref mut e2) => {
+            traverse(e1.borrow_mut(), f);
+            traverse(e2.borrow_mut(), f);
+        }
     }
 }
 
@@ -114,6 +119,15 @@ fn typecheck(env: &mut Vec<(String, Ty)>, exp: &Exp) -> Result<Ty, String> {
                     }
                 }
                 _ => Err("trying to apply non-function".to_string()),
+            }
+        }
+        ExpLayer::Add(ref e1, ref e2) => {
+            let ty1 = typecheck(env, e1)?;
+            let ty2 = typecheck(env, e2)?;
+            if *ty1 == Type::Uint && *ty2 == Type::Uint {
+                Ok(ty1)
+            } else {
+                Err("adding non-integers!".to_string())
             }
         }
     }
