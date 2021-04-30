@@ -1,6 +1,5 @@
 use crate::expr::{Exp, ExpLayer};
 use crate::util::lookup;
-use std::hint::unreachable_unchecked;
 
 #[derive(Clone, Debug)]
 pub enum Value {
