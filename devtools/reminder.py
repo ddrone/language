@@ -12,7 +12,5 @@ delta = now - last_modified
 threshold = datetime.timedelta(hours=16)
 
 if delta > threshold:
-    print("""
-        TODO: implement a reminder that would actually remind about something
-    """)
+    subprocess.call(['cat', reminder_path])
     subprocess.call(['touch', reminder_path])
