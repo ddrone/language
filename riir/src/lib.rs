@@ -64,7 +64,8 @@ pub fn parse_file<P: AsRef<Path>>(file_name: P) -> Vec<Card> {
                 match parse_cloze(&s) {
                     None => {
                         // TODO: Implement better error handling
-                        panic!("Invalid card!")
+                        println!("Invalid card {:}", &s);
+                        panic!()
                     }
                     Some(card) => {
                         let mut review_infos = Vec::new();
